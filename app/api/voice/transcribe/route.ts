@@ -60,7 +60,7 @@ async function transcribeWithElevenLabs(
   durationMs: number
 ): Promise<Response> {
   const formData = new FormData();
-  formData.append("audio", audioFile);
+  formData.append("file", audioFile);
   formData.append("model_id", "scribe_v1");
 
   const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {

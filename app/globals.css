@@ -1,21 +1,31 @@
 @import "tailwindcss";
 
+/* Advine Pixel font for main title */
+@font-face {
+  font-family: "AdvinePixel";
+  src: url("/fonts/AdvinePixelDemoRegular-Zpoq3.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --background: #fff1f2;
   --foreground: #1f2937;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+* {
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+* .advine-pixel-font,
+.advine-pixel-font * {
+  font-family: "AdvinePixel", Helvetica, Arial, sans-serif !important;
 }
 
 /* Custom scrollbar for chat */
@@ -45,3 +55,239 @@ body {
 .bounce-dot-1 { animation: bounce-dot 1.4s ease-in-out infinite; }
 .bounce-dot-2 { animation: bounce-dot 1.4s ease-in-out 0.2s infinite; }
 .bounce-dot-3 { animation: bounce-dot 1.4s ease-in-out 0.4s infinite; }
+
+/* Unround all corners */
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, 
+.rounded-2xl, .rounded-3xl, .rounded-full,
+[class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+button, input, textarea, select, div, span, a {
+  border-radius: 0 !important;
+}
+
+/* Change all shadows to pink - only on hover */
+[class*="hover:shadow"] {
+  --tw-shadow-color: rgba(244, 63, 94, 0.25);
+}
+
+.hover\:shadow-sm:hover {
+  box-shadow: 0 1px 2px rgba(244, 63, 94, 0.25) !important;
+}
+
+.hover\:shadow-md:hover {
+  box-shadow: 0 4px 6px rgba(244, 63, 94, 0.25) !important;
+}
+
+.hover\:shadow-lg:hover {
+  box-shadow: 0 10px 15px rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Hide base shadows, only show on hover */
+.shadow-sm,
+.shadow-md,
+.shadow-lg {
+  box-shadow: 0 4px 6px rgba(244, 63, 94, 0.16) !important;
+}
+
+/* Change all grey text to pure black */
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-gray-800 {
+  color: #000000 !important;
+}
+
+/* Exception: keep grey text for disabled/locked buttons */
+button:disabled,
+button[disabled],
+button.cursor-not-allowed {
+  color: #9ca3af !important;
+}
+
+/* Make bold headings/titles all caps */
+h1, h2, h3, h4, h5, h6,
+.title, .heading,
+[class*="font-bold"][class*="title"],
+.font-semibold,
+.font-bold {
+  text-transform: uppercase;
+}
+
+/* Dotted grid background pattern with pink theme and PNG overlay */
+.dotted-background {
+  background-color: #fff1f2;
+  opacity: 1;
+  background-image:
+    radial-gradient(#f43f5e 0.75px, transparent 0.75px),
+    radial-gradient(#f43f5e 0.75px, #fff1f2 0.75px);
+  background-size:
+    20px 20px,
+    20px 20px;
+  background-position:
+    0 0,
+    10px 10px;
+  background-repeat:
+    repeat,
+    repeat;
+  position: relative;
+}
+
+/* PNG overlay positioned in top left */
+.dotted-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/background.png');
+  background-position: left top;
+  background-repeat: no-repeat;
+  background-size: auto;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* PNG overlay positioned in bottom right */
+.dotted-background::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/background2.png');
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  background-size: auto;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure content (text, buttons, cards) is above PNG */
+.dotted-background button,
+.dotted-background a,
+.dotted-background h1,
+.dotted-background h2,
+.dotted-background h3,
+.dotted-background p,
+.dotted-background span,
+.dotted-background [class*="bg-white"],
+.dotted-background [class*="shadow"],
+.dotted-background [class*="rounded"] {
+  position: relative;
+  z-index: 2;
+}
+
+/* Main content containers */
+.dotted-background > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Exception: don't uppercase advine pixel font */
+.advine-pixel-font {
+  text-transform: none !important;
+}
+h1, h2, h3, h4, h5, h6,
+.title, .heading,
+[class*="font-bold"][class*="title"],
+.font-semibold,
+.font-bold {
+  text-transform: uppercase;
+}
+/* Advine Pixel font class for main title */
+.advine-pixel-font {
+  font-family: "AdvinePixel", Helvetica, Arial, sans-serif !important;
+}
+.bounce-dot-1 { animation: bounce-dot 1.4s ease-in-out infinite; }
+.bounce-dot-2 { animation: bounce-dot 1.4s ease-in-out 0.2s infinite; }
+.bounce-dot-3 { animation: bounce-dot 1.4s ease-in-out 0.4s infinite; }
+
+/* Unround all corners */
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, 
+.rounded-2xl, .rounded-3xl, .rounded-full,
+[class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+button, input, textarea, select, div, span, a {
+  border-radius: 0 !important;
+}
+
+/* Change all shadows to pink - only on hover */
+[class*="hover:shadow"] {
+  --tw-shadow-color: rgba(244, 63, 94, 0.25);
+}
+
+.hover\:shadow-sm:hover {
+  box-shadow: 0 1px 2px rgba(244, 63, 94, 0.25) !important;
+}
+
+.hover\:shadow-md:hover {
+  box-shadow: 0 4px 6px rgba(244, 63, 94, 0.25) !important;
+}
+
+.hover\:shadow-lg:hover {
+  box-shadow: 0 10px 15px rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Hide base shadows, only show on hover */
+.shadow-sm,
+.shadow-md,
+.shadow-lg {
+  box-shadow: 0 4px 6px rgba(244, 63, 94, 0.16) !important;
+}
+
+/* Change all grey text to pure black */
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-gray-800 {
+  color: #000000 !important;
+}
+
+/* Exception: keep grey text for disabled/locked buttons */
+button:disabled,
+button[disabled],
+button.cursor-not-allowed {
+  color: #9ca3af !important;
+}
+
+/* Make bold headings/titles all caps */
+h1, h2, h3, h4, h5, h6,
+.title, .heading,
+[class*="font-bold"][class*="title"],
+.font-semibold,
+.font-bold {
+  text-transform: uppercase;
+}
+
+/* Dotted grid background pattern with pink theme */
+.dotted-background {
+  background-color: #fff1f2;
+  opacity: 1;
+  background-image: radial-gradient(#f43f5e 0.75px, transparent 0.75px), radial-gradient(#f43f5e 0.75px, #fff1f2 0.75px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
+
+/* Exception: don't uppercase advine pixel font */
+.advine-pixel-font {
+  text-transform: none !important;
+}
+h1, h2, h3, h4, h5, h6,
+.title, .heading,
+[class*="font-bold"][class*="title"],
+.font-semibold,
+.font-bold {
+  text-transform: uppercase;
+}
+/* Advine Pixel font class for main title */
+.advine-pixel-font {
+  font-family: "AdvinePixel", Helvetica, Arial, sans-serif !important;
+}

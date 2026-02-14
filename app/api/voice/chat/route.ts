@@ -142,7 +142,9 @@ export async function POST(req: NextRequest) {
 
         // Analyze the response and user behavior with analysis model
         const analysisModel = getAnalysisModel();
-        const analysisPrompt = `Analyze this voice conversation exchange and return a JSON object.
+        let analysis: any;
+        try {
+          const analysisPrompt = `Analyze this voice conversation exchange and return a JSON object.
 
 User said: "${transcript}"
 
@@ -165,9 +167,18 @@ Return JSON with exactly this structure:
   "strengthDisplayed": "optional string - what did the user do well in this exchange"
 }`;
 
-        const analysisResult = await analysisModel.generateContent(analysisPrompt);
-        const analysisText = analysisResult.response.text();
-        const analysis = JSON.parse(analysisText);
+          const analysisResult = await analysisModel.generateContent(analysisPrompt);
+          const analysisText = analysisResult.response.text();
+          analysis = JSON.parse(analysisText);
+        } catch (analysisError) {
+          // If analysis fails due to quota, use defaults
+          console.warn("Analysis model error, using defaults:", analysisError);
+          analysis = {
+            tone: "neutral",
+            userWasPassive: false,
+            userShowedEmpathy: false,
+          };
+        }
 
         const response: VoiceChatResponse = {
           reply,
@@ -187,6 +198,18 @@ Return JSON with exactly this structure:
       } catch (error: unknown) {
         lastError = error;
         const errorMessage = error instanceof Error ? error.message : String(error);
+
+        // If quota exhausted (free-tier limit: 0), return immediately with helpful message
+        if (errorMessage.includes("limit: 0") || errorMessage.includes("quota")) {
+          console.error("Gemini quota exhausted (free tier):", errorMessage);
+          return Response.json(
+            {
+              error: "Gemini API quota exhausted. Enable billing in Google Cloud Console or wait 24 hours for free-tier reset.",
+              code: "QUOTA_EXHAUSTED",
+            },
+            { status: 429 }
+          );
+        }
 
         if (
           errorMessage.includes("429") ||

@@ -175,7 +175,7 @@ export default function ChatPage() {
           </button>
           <div>
             <h1 className="text-base font-semibold text-gray-800">
-              {scenario.icon} {scenario.title}
+              {scenario.icon} {scenario.title.toUpperCase()}
             </h1>
             <span className="text-xs text-rose-400 capitalize">
               {difficulty} mode

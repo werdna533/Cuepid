@@ -73,7 +73,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center">
+      <div className="min-h-screen dotted-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500 mx-auto mb-4" />
           <p className="text-gray-500 font-medium">
@@ -89,7 +89,7 @@ export default function DashboardPage() {
 
   if (!analytics) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center">
+      <div className="min-h-screen dotted-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 mb-4">
             Something went wrong with the analysis.
@@ -120,16 +120,34 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100">
+    <div className="min-h-screen dotted-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Main Header with Cuepid */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => router.push("/")}
+            className="hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <h1 className="text-8xl text-rose-600 advine-pixel-font leading-none">
+              Cuepid
+            </h1>
+          </button>
+          <button
+            onClick={() => router.push("/")}
+            className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
+          >
+            {"\u2190"} Home
+          </button>
+        </div>
+
+        {/* Report Header */}
         <div className="text-center mb-8">
           <p className="text-gray-400 text-sm mb-1">
             {scenarioIcon} {scenarioTitle}
           </p>
-          <h1 className="text-3xl font-bold text-gray-800 mb-3">
-            Conversation Report
-          </h1>
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">
+            CONVERSATION REPORT
+          </h2>
           <div className="inline-flex items-center gap-2 bg-white rounded-full px-5 py-2 shadow-sm">
             <span className="text-xl font-bold text-rose-500">
               +{analytics.xpEarned} XP
@@ -139,7 +157,7 @@ export default function DashboardPage() {
 
         {/* Summary Card */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">Summary</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">SUMMARY</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
             {analytics.summary}
           </p>
@@ -153,7 +171,7 @@ export default function DashboardPage() {
         {/* Radar Chart */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Skills Breakdown
+            SKILLS BREAKDOWN
           </h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -211,7 +229,7 @@ export default function DashboardPage() {
         {/* Suggestions */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            {"\u{1F4A1}"} Tips for Next Time
+            {"\u{1F4A1}"} TIPS FOR NEXT TIME
           </h2>
           <ul className="space-y-3">
             {analytics.suggestions.map((suggestion, i) => (
