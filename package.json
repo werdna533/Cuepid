@@ -10,13 +10,16 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "mammoth": "^1.11.0",
     "mongodb": "^7.1.0",
     "mongoose": "^9.2.1",
     "next": "16.1.6",
+    "openai": "^6.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "vectra": "^0.12.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

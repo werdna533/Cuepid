@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getChatModel } from "@/lib/gemini";
 import { scenarios } from "@/lib/scenarios";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { queryWithBookKnowledge } from "@/lib/bookRAG";
 
 const MAX_RETRIES = 3;
 
@@ -28,6 +29,23 @@ export async function POST(req: NextRequest) {
     let systemPrompt =
       scenario.systemPrompts[difficulty as keyof typeof scenario.systemPrompts];
 
+    // RAG: Enhance system prompt with book knowledge
+    const lastMessage = messages[messages.length - 1].content;
+    const { enhancedPrompt, sources } = await queryWithBookKnowledge(
+      lastMessage,
+      systemPrompt,
+      3 // Retrieve top 3 relevant chunks
+    );
+    systemPrompt = enhancedPrompt;
+
+    // Track if RAG was used
+    const ragUsed = sources.length > 0;
+    const ragInfo = ragUsed ? {
+      sourceCount: sources.length,
+      bookTitle: sources[0]?.item.bookTitle || 'Intimate Relationships',
+      topScore: sources[0]?.score || 0
+    } : null;
+
     // Build Gemini-compatible history (must start with "user", alternating roles)
     const allButLast = messages.slice(0, -1);
 
@@ -47,8 +65,6 @@ export async function POST(req: NextRequest) {
         role: m.role === "user" ? "user" : "model",
         parts: [{ text: m.content }],
       }));
-
-    const lastMessage = messages[messages.length - 1].content;
 
     // Retry with exponential backoff on rate limit errors
     let lastError: unknown = null;
@@ -79,6 +95,10 @@ export async function POST(req: NextRequest) {
           headers: {
             "Content-Type": "text/plain; charset=utf-8",
             "Cache-Control": "no-cache",
+            "X-RAG-Used": ragUsed ? "true" : "false",
+            "X-RAG-Source-Count": ragUsed ? String(ragInfo!.sourceCount) : "0",
+            "X-RAG-Book-Title": ragUsed ? ragInfo!.bookTitle : "",
+            "X-RAG-Top-Score": ragUsed ? String(ragInfo!.topScore.toFixed(3)) : "0",
           },
         });
       } catch (error: unknown) {
