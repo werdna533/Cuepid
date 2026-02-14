@@ -13,12 +13,15 @@ interface UserData {
   weaknesses: string[];
 }
 
+type ConversationMode = "text" | "voice";
+
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<
     Record<string, string>
   >({});
+  const [selectedMode, setSelectedMode] = useState<Record<string, ConversationMode>>({});
 
   useEffect(() => {
     let id = localStorage.getItem("cuepid-user-id");
@@ -39,7 +42,15 @@ export default function Home() {
 
   const startConversation = (scenarioId: string) => {
     const difficulty = selectedDifficulty[scenarioId] || "easy";
-    router.push(`/chat/${scenarioId}?difficulty=${difficulty}`);
+    const mode = selectedMode[scenarioId] || "text";
+    
+    if (mode === "voice") {
+      // Convert difficulty name to number for voice mode
+      const difficultyNum = difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 8;
+      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}`);
+    } else {
+      router.push(`/chat/${scenarioId}?difficulty=${difficulty}`);
+    }
   };
 
   const categoryColors: Record<string, string> = {
@@ -105,6 +116,40 @@ export default function Home() {
                 {scenario.description}
               </p>
 
+              {/* Mode Selector */}
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={() =>
+                    setSelectedMode((prev) => ({
+                      ...prev,
+                      [scenario.id]: "text",
+                    }))
+                  }
+                  className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
+                    (selectedMode[scenario.id] || "text") === "text"
+                      ? "bg-rose-500 text-white shadow-sm"
+                      : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                  }`}
+                >
+                  💬 Text
+                </button>
+                <button
+                  onClick={() =>
+                    setSelectedMode((prev) => ({
+                      ...prev,
+                      [scenario.id]: "voice",
+                    }))
+                  }
+                  className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
+                    selectedMode[scenario.id] === "voice"
+                      ? "bg-rose-500 text-white shadow-sm"
+                      : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                  }`}
+                >
+                  🎤 Voice
+                </button>
+              </div>
+
               {/* Difficulty Selector */}
               <div className="flex gap-2 mb-3">
                 {(["easy", "medium", "hard"] as const).map((diff) => {
@@ -141,9 +186,9 @@ export default function Home() {
 
               <button
                 onClick={() => startConversation(scenario.id)}
-                className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98]"
+                className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                Start Chat
+                {selectedMode[scenario.id] === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
               </button>
             </div>
           ))}

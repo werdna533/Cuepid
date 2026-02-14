@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getChatModel } from "@/lib/gemini";
 import { scenarios } from "@/lib/scenarios";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const MAX_RETRIES = 3;
 
@@ -10,6 +11,13 @@ async function sleep(ms: number) {
 
 export async function POST(req: NextRequest) {
   try {
+    const { allowed, retryAfterMs } = checkRateLimit();
+    if (!allowed) {
+      return Response.json(
+        { error: `Rate limited. Try again in ${Math.ceil(retryAfterMs / 1000)} seconds.` },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) } }
+      );
+    }
     const { messages, scenarioId, difficulty } = await req.json();
 
     const scenario = scenarios[scenarioId];

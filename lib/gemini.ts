@@ -10,14 +10,14 @@ function getGenAI() {
 
 export function getChatModel(systemPrompt: string) {
   return getGenAI().getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-pro",
     systemInstruction: systemPrompt,
   });
 }
 
 export function getAnalysisModel() {
   return getGenAI().getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-pro",
     generationConfig: {
       responseMimeType: "application/json",
     },

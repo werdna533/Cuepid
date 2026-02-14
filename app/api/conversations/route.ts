@@ -4,7 +4,7 @@ import Conversation from "@/lib/models/Conversation";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, scenario, difficulty, messages } = await req.json();
+    const { userId, scenario, difficulty, messages, mode, voiceMetricsHistory } = await req.json();
     await dbConnect();
 
     const conversation = await Conversation.create({
@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
       scenario,
       difficulty,
       messages,
+      mode: mode || "text",
+      voiceMetricsHistory: voiceMetricsHistory || [],
     });
 
     return Response.json({ conversation });

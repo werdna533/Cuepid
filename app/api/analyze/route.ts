@@ -4,9 +4,17 @@ import dbConnect from "@/lib/mongodb";
 import Conversation from "@/lib/models/Conversation";
 import User from "@/lib/models/User";
 import { calculateXP, calculateLevel } from "@/lib/levels";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    const { allowed, retryAfterMs } = checkRateLimit();
+    if (!allowed) {
+      return Response.json(
+        { error: `Rate limited. Try again in ${Math.ceil(retryAfterMs / 1000)} seconds.` },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) } }
+      );
+    }
     const { conversationId } = await req.json();
 
     await dbConnect();
