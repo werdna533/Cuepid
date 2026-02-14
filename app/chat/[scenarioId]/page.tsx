@@ -17,6 +17,7 @@ export default function ChatPage() {
   const scenarioId = params.scenarioId as string;
   const difficulty = searchParams.get("difficulty") || "easy";
   const gender = searchParams.get("gender") || "female";
+  const weaknesses = searchParams.get("weaknesses") || "";
   const scenario = scenarios[scenarioId];
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -81,6 +82,7 @@ export default function ChatPage() {
           scenarioId,
           difficulty,
           gender,
+          weaknesses,
         }),
       });
 

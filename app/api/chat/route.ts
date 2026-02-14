@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         { status: 429, headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) } }
       );
     }
-    const { messages, scenarioId, difficulty, gender = "female" } = await req.json();
+    const { messages, scenarioId, difficulty, gender = "female", weaknesses = "" } = await req.json();
 
     const scenario = scenarios[scenarioId];
     if (!scenario) {
@@ -27,6 +27,13 @@ export async function POST(req: NextRequest) {
 
     let systemPrompt =
       scenario.systemPrompts[difficulty as keyof typeof scenario.systemPrompts];
+    
+    // Replace {{WEAKNESSES}} placeholder if present
+    if (weaknesses && systemPrompt.includes("{{WEAKNESSES}}")) {
+      const weaknessArray = weaknesses.split(",").map((w: string) => w.trim());
+      const formattedWeaknesses = weaknessArray.join(", ");
+      systemPrompt = systemPrompt.replace("{{WEAKNESSES}}", formattedWeaknesses);
+    }
     
     // Add gender context to the prompt
     const genderIdentity = gender === "male" ? "You are male." : "You are female.";

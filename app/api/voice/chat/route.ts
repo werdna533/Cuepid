@@ -104,6 +104,12 @@ export async function POST(req: NextRequest) {
     const difficultyKey = difficulty <= 3 ? "easy" : difficulty <= 7 ? "medium" : "hard";
     let systemPrompt = scenario.systemPrompts[difficultyKey];
     
+    // Replace {{WEAKNESSES}} placeholder if present
+    if (userWeaknesses.length > 0 && systemPrompt.includes("{{WEAKNESSES}}")) {
+      const formattedWeaknesses = userWeaknesses.join(", ");
+      systemPrompt = systemPrompt.replace("{{WEAKNESSES}}", formattedWeaknesses);
+    }
+    
     // Add gender context to the prompt
     const genderIdentity = gender === "male" ? "You are male." : "You are female.";
     systemPrompt = systemPrompt + `\n\n${genderIdentity}`;

@@ -44,13 +44,41 @@ export default function Home() {
     const difficulty = globalDifficulty;
     const mode = globalMode;
     
+    // Build weaknesses param for practice_weaknesses scenario
+    const weaknessesParam = scenarioId === "practice_weaknesses" && user?.weaknesses?.length 
+      ? `&weaknesses=${encodeURIComponent(user.weaknesses.join(","))}`
+      : "";
+    
     if (mode === "voice") {
       // Convert difficulty name to number for voice mode
       const difficultyNum = difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 8;
-      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}&gender=${partnerGender}`);
+      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}&gender=${partnerGender}${weaknessesParam}`);
     } else {
-      router.push(`/chat/${scenarioId}?difficulty=${difficulty}&gender=${partnerGender}`);
+      router.push(`/chat/${scenarioId}?difficulty=${difficulty}&gender=${partnerGender}${weaknessesParam}`);
     }
+  };
+
+  // Helper to get dynamic description for practice_weaknesses scenario
+  const getScenarioDescription = (scenario: typeof scenarios[string]) => {
+    if (scenario.id === "practice_weaknesses" && user?.weaknesses?.length) {
+      const formatted = user.weaknesses.map(w => 
+        w.charAt(0).toUpperCase() + w.slice(1)
+      ).join(" and ");
+      return (
+        <span>
+          Practice <strong>{formatted.toLowerCase()}</strong> in a supportive chat with a friend.
+        </span>
+      );
+    }
+    return scenario.description;
+  };
+
+  // Check if scenario is locked
+  const isScenarioLocked = (scenarioId: string) => {
+    if (scenarioId === "practice_weaknesses") {
+      return !user?.weaknesses?.length || user.weaknesses.length === 0;
+    }
+    return false;
   };
 
   const categoryColors: Record<string, string> = {
@@ -179,37 +207,52 @@ export default function Home() {
 
         {/* Scenario Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {Object.values(scenarios).map((scenario) => (
-            <div
-              key={scenario.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-5 flex flex-col"
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <span className="text-3xl">{scenario.icon}</span>
-                <div className="min-w-0">
-                  <h2 className="text-lg font-semibold text-gray-800 leading-tight">
-                    {scenario.title.toUpperCase()}
-                  </h2>
-                  <span
-                    className={`text-xs font-medium uppercase ${categoryColors[scenario.category] || "text-gray-400"}`}
-                  >
-                    {scenario.category}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-gray-500 text-sm mb-4 flex-1">
-                {scenario.description}
-              </p>
-
-              <button
-                onClick={() => startConversation(scenario.id)}
-                className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+          {Object.values(scenarios).map((scenario) => {
+            const locked = isScenarioLocked(scenario.id);
+            return (
+              <div
+                key={scenario.id}
+                className={`bg-white rounded-2xl shadow-md transition-shadow p-5 flex flex-col ${
+                  locked ? "opacity-60" : "hover:shadow-lg"
+                }`}
               >
-                {globalMode === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
-              </button>
-            </div>
-          ))}
+                <div className="flex items-start gap-3 mb-3">
+                  <span className="text-3xl">{scenario.icon}</span>
+                  <div className="min-w-0">
+                    <h2 className="text-lg font-semibold text-gray-800 leading-tight">
+                      {scenario.title.toUpperCase()}
+                    </h2>
+                    <span
+                      className={`text-xs font-medium uppercase ${categoryColors[scenario.category] || "text-gray-400"}`}
+                    >
+                      {scenario.category}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-gray-500 text-sm mb-4 flex-1">
+                  {getScenarioDescription(scenario)}
+                </p>
+
+                {locked ? (
+                  <button
+                    disabled
+                    className="w-full bg-gray-300 text-gray-500 py-2.5 rounded-xl font-medium cursor-not-allowed flex items-center justify-center gap-2"
+                    title="Complete some conversations first to identify your weaknesses"
+                  >
+                    🔒 Locked
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => startConversation(scenario.id)}
+                    className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    {globalMode === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

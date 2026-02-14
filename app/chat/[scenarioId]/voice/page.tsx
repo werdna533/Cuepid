@@ -26,6 +26,7 @@ export default function VoiceChatPage() {
   const scenarioId = params.scenarioId as string;
   const difficulty = parseInt(searchParams.get("difficulty") || "3");
   const gender = (searchParams.get("gender") || "female") as PartnerGender;
+  const weaknesses = searchParams.get("weaknesses")?.split(",").filter(Boolean) || [];
   const scenario = scenarios[scenarioId];
 
   const [messages, setMessages] = useState<VoiceMessage[]>([]);
@@ -181,6 +182,7 @@ export default function VoiceChatPage() {
           voiceMetricsHistory,
           desiredTone: currentTone,
           gender,
+          userWeaknesses: weaknesses,
         }),
       });
 
