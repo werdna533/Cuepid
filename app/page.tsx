@@ -1,65 +1,154 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
+import { scenarios } from "@/lib/scenarios";
+
+interface UserData {
+  level: number;
+  xp: number;
+  conversationCount: number;
+  strengths: string[];
+  weaknesses: string[];
+}
 
 export default function Home() {
+  const router = useRouter();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<
+    Record<string, string>
+  >({});
+
+  useEffect(() => {
+    let id = localStorage.getItem("cuepid-user-id");
+    if (!id) {
+      id = uuidv4();
+      localStorage.setItem("cuepid-user-id", id);
+    }
+
+    fetch("/api/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitorId: id }),
+    })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+      .catch(console.error);
+  }, []);
+
+  const startConversation = (scenarioId: string) => {
+    const difficulty = selectedDifficulty[scenarioId] || "easy";
+    router.push(`/chat/${scenarioId}?difficulty=${difficulty}`);
+  };
+
+  const categoryColors: Record<string, string> = {
+    romantic: "text-rose-500",
+    social: "text-blue-500",
+    conflict: "text-amber-500",
+    professional: "text-emerald-500",
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100">
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h1 className="text-4xl font-bold text-rose-600">
+              {"\u{1F498}"} Cue-pid
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Practice your conversation skills
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            {user && (
+              <div className="bg-white/80 rounded-full px-4 py-2 shadow-sm text-sm">
+                <span className="font-semibold text-gray-700">
+                  Lv. {user.level}
+                </span>
+                <span className="text-rose-400 ml-2">{user.xp} XP</span>
+              </div>
+            )}
+            <button
+              onClick={() => router.push("/profile")}
+              className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Profile
+            </button>
+          </div>
+        </div>
+
+        {/* Scenario Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {Object.values(scenarios).map((scenario) => (
+            <div
+              key={scenario.id}
+              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-5 flex flex-col"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <div className="flex items-start gap-3 mb-3">
+                <span className="text-3xl">{scenario.icon}</span>
+                <div className="min-w-0">
+                  <h2 className="text-lg font-semibold text-gray-800 leading-tight">
+                    {scenario.title}
+                  </h2>
+                  <span
+                    className={`text-xs font-medium uppercase ${categoryColors[scenario.category] || "text-gray-400"}`}
+                  >
+                    {scenario.category}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-gray-500 text-sm mb-4 flex-1">
+                {scenario.description}
+              </p>
+
+              {/* Difficulty Selector */}
+              <div className="flex gap-2 mb-3">
+                {(["easy", "medium", "hard"] as const).map((diff) => {
+                  const locked =
+                    (diff === "medium" && (user?.level ?? 1) < 2) ||
+                    (diff === "hard" && (user?.level ?? 1) < 4);
+                  const selected =
+                    (selectedDifficulty[scenario.id] || "easy") === diff;
+                  return (
+                    <button
+                      key={diff}
+                      onClick={() =>
+                        !locked &&
+                        setSelectedDifficulty((prev) => ({
+                          ...prev,
+                          [scenario.id]: diff,
+                        }))
+                      }
+                      disabled={locked}
+                      className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        selected
+                          ? "bg-rose-500 text-white shadow-sm"
+                          : locked
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                      }`}
+                    >
+                      {locked ? "\u{1F512} " : ""}
+                      {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => startConversation(scenario.id)}
+                className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98]"
+              >
+                Start Chat
+              </button>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
