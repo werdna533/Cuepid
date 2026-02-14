@@ -131,18 +131,28 @@ export default function ProfilePage() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">YOUR PROFILE</h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Track your conversation skills
-            </p>
-          </div>
+          <button
+            onClick={() => router.push("/")}
+            className="hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <h1 className="text-8xl text-rose-600 advine-pixel-font leading-none">
+              Cuepid
+            </h1>
+          </button>
           <button
             onClick={() => router.push("/")}
             className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
           >
             {"\u2190"} Home
           </button>
+        </div>
+
+        {/* Profile Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-800">YOUR PROFILE</h2>
+          <p className="text-gray-500 text-sm mt-1">
+            Track your conversation skills
+          </p>
         </div>
 
         {/* Level Card */}
@@ -230,7 +240,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 gap-3 mb-5">
             <div className="bg-white rounded-xl shadow-sm p-4">
               <h3 className="text-sm font-semibold text-emerald-600 mb-2">
-                {"\u{00AA}"} STRENGTHS
+                {"\u{2B50}"} STRENGTHS
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {user.strengths.map((s: string) => (
@@ -245,7 +255,7 @@ export default function ProfilePage() {
             </div>
             <div className="bg-white rounded-xl shadow-sm p-4">
               <h3 className="text-sm font-semibold text-amber-600 mb-2">
-                {"\u{00AE}"} FOCUS AREAS
+                {"\u{1F3AF}"} FOCUS AREAS
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {user.weaknesses.map((w: string) => (

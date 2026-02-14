@@ -18,10 +18,8 @@ type ConversationMode = "text" | "voice";
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<
-    Record<string, string>
-  >({});
-  const [selectedMode, setSelectedMode] = useState<Record<string, ConversationMode>>({});
+  const [globalMode, setGlobalMode] = useState<ConversationMode>("text");
+  const [globalDifficulty, setGlobalDifficulty] = useState("easy");
 
   useEffect(() => {
     let id = localStorage.getItem("cuepid-user-id");
@@ -41,8 +39,8 @@ export default function Home() {
   }, []);
 
   const startConversation = (scenarioId: string) => {
-    const difficulty = selectedDifficulty[scenarioId] || "easy";
-    const mode = selectedMode[scenarioId] || "text";
+    const difficulty = globalDifficulty;
+    const mode = globalMode;
     
     if (mode === "voice") {
       // Convert difficulty name to number for voice mode
@@ -65,11 +63,14 @@ export default function Home() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-10">
-          <div>
+          <button
+            onClick={() => router.push("/")}
+            className="hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <h1 className="text-8xl text-rose-600 advine-pixel-font leading-none">
               Cuepid
             </h1>
-          </div>
+          </button>
           <div className="flex items-center gap-4">
             {user && (
               <div className="bg-white/80 rounded-full px-4 py-2 shadow-sm text-sm">
@@ -85,6 +86,65 @@ export default function Home() {
             >
               Profile
             </button>
+          </div>
+        </div>
+
+        {/* Global Mode & Difficulty Toggle */}
+        <div className="mb-8 bg-white rounded-2xl shadow-md p-5 flex flex-wrap gap-6 items-center">
+          {/* Mode Toggle */}
+          <div className="flex gap-2 items-center">
+            <span className="text-sm font-medium text-gray-700 min-w-fit">Mode:</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setGlobalMode("text")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  globalMode === "text"
+                    ? "bg-rose-500 text-white shadow-lg scale-105"
+                    : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+              >
+                💬 Text
+              </button>
+              <button
+                onClick={() => setGlobalMode("voice")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  globalMode === "voice"
+                    ? "bg-rose-500 text-white shadow-lg scale-105"
+                    : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+              >
+                🎤 Voice
+              </button>
+            </div>
+          </div>
+
+          {/* Difficulty Toggle */}
+          <div className="flex gap-2 items-center">
+            <span className="text-sm font-medium text-gray-700 min-w-fit">Difficulty:</span>
+            <div className="flex gap-2">
+              {(["easy", "medium", "hard"] as const).map((diff) => {
+                const userLevel = user?.level ?? 1;
+                const locked =
+                  (diff === "medium" && userLevel < 2) ||
+                  (diff === "hard" && userLevel < 4);
+                return (
+                  <button
+                    key={diff}
+                    onClick={() => !locked && setGlobalDifficulty(diff)}
+                    disabled={locked}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      globalDifficulty === diff
+                        ? "bg-rose-500 text-white shadow-lg scale-105"
+                        : locked
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                          : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                    }`}
+                  >
+                    {locked ? "🔒" : diff.charAt(0).toUpperCase() + diff.slice(1)}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -113,79 +173,11 @@ export default function Home() {
                 {scenario.description}
               </p>
 
-              {/* Mode Selector */}
-              <div className="flex gap-2 mb-3">
-                <button
-                  onClick={() =>
-                    setSelectedMode((prev) => ({
-                      ...prev,
-                      [scenario.id]: "text",
-                    }))
-                  }
-                  className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                    (selectedMode[scenario.id] || "text") === "text"
-                      ? "bg-rose-500 text-white shadow-sm"
-                      : "bg-rose-50 text-rose-600 hover:bg-rose-100"
-                  }`}
-                >
-                  💬 Text
-                </button>
-                <button
-                  onClick={() =>
-                    setSelectedMode((prev) => ({
-                      ...prev,
-                      [scenario.id]: "voice",
-                    }))
-                  }
-                  className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                    selectedMode[scenario.id] === "voice"
-                      ? "bg-rose-500 text-white shadow-sm"
-                      : "bg-rose-50 text-rose-600 hover:bg-rose-100"
-                  }`}
-                >
-                  🎤 Voice
-                </button>
-              </div>
-
-              {/* Difficulty Selector */}
-              <div className="flex gap-2 mb-3">
-                {(["easy", "medium", "hard"] as const).map((diff) => {
-                  const locked =
-                    (diff === "medium" && (user?.level ?? 1) < 2) ||
-                    (diff === "hard" && (user?.level ?? 1) < 4);
-                  const selected =
-                    (selectedDifficulty[scenario.id] || "easy") === diff;
-                  return (
-                    <button
-                      key={diff}
-                      onClick={() =>
-                        !locked &&
-                        setSelectedDifficulty((prev) => ({
-                          ...prev,
-                          [scenario.id]: diff,
-                        }))
-                      }
-                      disabled={locked}
-                      className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                        selected
-                          ? "bg-rose-500 text-white shadow-sm"
-                          : locked
-                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "bg-rose-50 text-rose-600 hover:bg-rose-100"
-                      }`}
-                    >
-                      {locked ? "🔒 " : ""}
-                      {diff.charAt(0).toUpperCase() + diff.slice(1)}
-                    </button>
-                  );
-                })}
-              </div>
-
               <button
                 onClick={() => startConversation(scenario.id)}
                 className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                {selectedMode[scenario.id] === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
+                {globalMode === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
               </button>
             </div>
           ))}
