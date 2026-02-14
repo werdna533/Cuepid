@@ -6,7 +6,7 @@ import { scenarios } from "@/lib/scenarios";
 import VoiceRecorder from "@/app/components/VoiceRecorder";
 import AudioPlayer from "@/app/components/AudioPlayer";
 import { VoiceMetrics } from "@/lib/voiceAnalytics";
-import { EmotionalTone } from "@/lib/toneToVoiceSettings";
+import { EmotionalTone, PartnerGender } from "@/lib/toneToVoiceSettings";
 
 interface VoiceMessage {
   role: "user" | "model";
@@ -25,6 +25,7 @@ export default function VoiceChatPage() {
   const searchParams = useSearchParams();
   const scenarioId = params.scenarioId as string;
   const difficulty = parseInt(searchParams.get("difficulty") || "3");
+  const gender = (searchParams.get("gender") || "female") as PartnerGender;
   const scenario = scenarios[scenarioId];
 
   const [messages, setMessages] = useState<VoiceMessage[]>([]);
@@ -79,6 +80,7 @@ export default function VoiceChatPage() {
           text: scenario.starterMessage,
           scenarioCategory: scenario.category,
           tone: "warm",
+          gender,
         }),
       });
 
@@ -178,6 +180,7 @@ export default function VoiceChatPage() {
           })),
           voiceMetricsHistory,
           desiredTone: currentTone,
+          gender,
         }),
       });
 
@@ -216,6 +219,7 @@ export default function VoiceChatPage() {
           scenarioCategory: scenario?.category,
           tone,
           difficulty: newDifficulty,
+          gender,
         }),
       });
 

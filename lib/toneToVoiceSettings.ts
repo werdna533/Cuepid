@@ -288,9 +288,29 @@ export interface VoicePersona {
   description: string;
 }
 
+export type PartnerGender = "female" | "male";
+
+/**
+ * ElevenLabs Voice IDs by gender
+ * Female voices: Sarah (warm), Rachel (neutral), Demi (professional)
+ * Male voices: Adam (friendly), Josh (warm), Arnold (deep)
+ */
+export const VOICE_IDS = {
+  female: {
+    warm: "EXAVITQu4vr4xnSDxMaL",      // Sarah - warm, friendly
+    neutral: "21m00Tcm4TlvDq8ikWAM",    // Rachel - neutral, clear
+    professional: "AZnzlk1XvdvUeBnXmlld", // Demi - professional
+  },
+  male: {
+    warm: "TxGEqnHWrfWFTfGW9XjX",       // Josh - warm, conversational
+    neutral: "pNInz6obpgDQGcFmaJgB",     // Adam - friendly, casual
+    professional: "VR6AewLTigWG4xSOukaG", // Arnold - deep, authoritative
+  },
+};
+
 export const VOICE_PERSONAS: Record<string, VoicePersona> = {
   romantic_interest: {
-    voiceId: "EXAVITQu4vr4xnSDxMaL", // Sarah - warm female voice
+    voiceId: "EXAVITQu4vr4xnSDxMaL", // Default: Sarah - warm female voice
     name: "Alex",
     baseSettings: {
       stability: 0.4,
@@ -301,7 +321,7 @@ export const VOICE_PERSONAS: Record<string, VoicePersona> = {
     description: "Warm and engaging dating interest",
   },
   friend: {
-    voiceId: "pNInz6obpgDQGcFmaJgB", // Adam - friendly male voice
+    voiceId: "pNInz6obpgDQGcFmaJgB", // Default: Adam - friendly male voice
     name: "Jordan",
     baseSettings: {
       stability: 0.5,
@@ -312,7 +332,7 @@ export const VOICE_PERSONAS: Record<string, VoicePersona> = {
     description: "Casual, supportive friend",
   },
   acquaintance: {
-    voiceId: "21m00Tcm4TlvDq8ikWAM", // Rachel - neutral female voice
+    voiceId: "21m00Tcm4TlvDq8ikWAM", // Default: Rachel - neutral female voice
     name: "Sam",
     baseSettings: {
       stability: 0.55,
@@ -323,7 +343,7 @@ export const VOICE_PERSONAS: Record<string, VoicePersona> = {
     description: "Neutral acquaintance",
   },
   colleague: {
-    voiceId: "AZnzlk1XvdvUeBnXmlld", // Demi - professional female voice
+    voiceId: "AZnzlk1XvdvUeBnXmlld", // Default: Demi - professional female voice
     name: "Taylor",
     baseSettings: {
       stability: 0.6,
@@ -336,21 +356,47 @@ export const VOICE_PERSONAS: Record<string, VoicePersona> = {
 };
 
 /**
+ * Get voice ID based on gender and scenario category
+ */
+export function getVoiceIdForGender(
+  gender: PartnerGender,
+  category: "romantic" | "social" | "conflict" | "professional"
+): string {
+  const voiceType = category === "romantic" ? "warm" 
+    : category === "professional" ? "professional" 
+    : "neutral";
+  return VOICE_IDS[gender][voiceType];
+}
+
+/**
  * Get the appropriate voice persona for a scenario category
  */
 export function getPersonaForScenario(
-  category: "romantic" | "social" | "conflict" | "professional"
+  category: "romantic" | "social" | "conflict" | "professional",
+  gender?: PartnerGender
 ): VoicePersona {
+  let persona: VoicePersona;
   switch (category) {
     case "romantic":
-      return VOICE_PERSONAS.romantic_interest;
+      persona = { ...VOICE_PERSONAS.romantic_interest };
+      break;
     case "social":
-      return VOICE_PERSONAS.friend;
+      persona = { ...VOICE_PERSONAS.friend };
+      break;
     case "conflict":
-      return VOICE_PERSONAS.acquaintance;
+      persona = { ...VOICE_PERSONAS.acquaintance };
+      break;
     case "professional":
-      return VOICE_PERSONAS.colleague;
+      persona = { ...VOICE_PERSONAS.colleague };
+      break;
     default:
-      return VOICE_PERSONAS.friend;
+      persona = { ...VOICE_PERSONAS.friend };
   }
+  
+  // Override voice ID if gender is specified
+  if (gender) {
+    persona.voiceId = getVoiceIdForGender(gender, category);
+  }
+  
+  return persona;
 }

@@ -14,12 +14,14 @@ interface UserData {
 }
 
 type ConversationMode = "text" | "voice";
+type PartnerGender = "female" | "male";
 
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [globalMode, setGlobalMode] = useState<ConversationMode>("text");
   const [globalDifficulty, setGlobalDifficulty] = useState("easy");
+  const [partnerGender, setPartnerGender] = useState<PartnerGender>("female");
 
   useEffect(() => {
     let id = localStorage.getItem("cuepid-user-id");
@@ -45,9 +47,9 @@ export default function Home() {
     if (mode === "voice") {
       // Convert difficulty name to number for voice mode
       const difficultyNum = difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 8;
-      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}`);
+      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}&gender=${partnerGender}`);
     } else {
-      router.push(`/chat/${scenarioId}?difficulty=${difficulty}`);
+      router.push(`/chat/${scenarioId}?difficulty=${difficulty}&gender=${partnerGender}`);
     }
   };
 
@@ -144,6 +146,33 @@ export default function Home() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Partner Gender Toggle */}
+          <div className="flex gap-2 items-center">
+            <span className="text-sm font-medium text-gray-700 min-w-fit">Partner:</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPartnerGender("female")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  partnerGender === "female"
+                    ? "bg-rose-500 text-white shadow-lg scale-105"
+                    : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+              >
+                👩 Female
+              </button>
+              <button
+                onClick={() => setPartnerGender("male")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  partnerGender === "male"
+                    ? "bg-rose-500 text-white shadow-lg scale-105"
+                    : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+              >
+                👨 Male
+              </button>
             </div>
           </div>
         </div>

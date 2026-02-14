@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         { status: 429, headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) } }
       );
     }
-    const { messages, scenarioId, difficulty } = await req.json();
+    const { messages, scenarioId, difficulty, gender = "female" } = await req.json();
 
     const scenario = scenarios[scenarioId];
     if (!scenario) {
@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
 
     let systemPrompt =
       scenario.systemPrompts[difficulty as keyof typeof scenario.systemPrompts];
+    
+    // Add gender context to the prompt
+    const genderIdentity = gender === "male" ? "You are male." : "You are female.";
+    systemPrompt = systemPrompt + `\n\n${genderIdentity}`;
 
     // Build Gemini-compatible history (must start with "user", alternating roles)
     const allButLast = messages.slice(0, -1);
