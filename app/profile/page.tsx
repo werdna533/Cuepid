@@ -68,7 +68,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center">
+      <div className="min-h-screen dotted-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500" />
       </div>
     );
@@ -127,12 +127,12 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100">
+    <div className="min-h-screen dotted-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Your Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-800">YOUR PROFILE</h1>
             <p className="text-gray-500 text-sm mt-1">
               Track your conversation skills
             </p>
@@ -191,7 +191,7 @@ export default function ProfilePage() {
         {radarData && (
           <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Average Skills
+              AVERAGE SKILLS
             </h2>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
@@ -230,7 +230,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 gap-3 mb-5">
             <div className="bg-white rounded-xl shadow-sm p-4">
               <h3 className="text-sm font-semibold text-emerald-600 mb-2">
-                {"\u{2B50}"} Strengths
+                {"\u{00AA}"} STRENGTHS
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {user.strengths.map((s: string) => (
@@ -245,7 +245,7 @@ export default function ProfilePage() {
             </div>
             <div className="bg-white rounded-xl shadow-sm p-4">
               <h3 className="text-sm font-semibold text-amber-600 mb-2">
-                {"\u{1F3AF}"} Focus Areas
+                {"\u{00AE}"} FOCUS AREAS
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {user.weaknesses.map((w: string) => (
@@ -264,7 +264,7 @@ export default function ProfilePage() {
         {/* Conversation History */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Recent Conversations
+            RECENT CONVERSATIONS
           </h2>
           {conversations.length === 0 ? (
             <p className="text-gray-400 text-center py-6">
