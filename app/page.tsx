@@ -61,16 +61,16 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100">
+    <div className="min-h-screen dotted-background">
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h1 className="text-4xl font-bold text-rose-600">
-              {"\u{1F498}"} Cue-pid
+            <h1 className="text-8xl text-rose-600 advine-pixel-font leading-none">
+              Cuepid
             </h1>
-            <p className="text-gray-500 mt-1">
-              Practice your conversation skills
+            <p className="text-black mt-1">
+              Master the art of connection
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -102,7 +102,7 @@ export default function Home() {
                 <span className="text-3xl">{scenario.icon}</span>
                 <div className="min-w-0">
                   <h2 className="text-lg font-semibold text-gray-800 leading-tight">
-                    {scenario.title}
+                    {scenario.title.toUpperCase()}
                   </h2>
                   <span
                     className={`text-xs font-medium uppercase ${categoryColors[scenario.category] || "text-gray-400"}`}
@@ -177,7 +177,7 @@ export default function Home() {
                             : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                       }`}
                     >
-                      {locked ? "\u{1F512} " : ""}
+                      {locked ? "🔒 " : ""}
                       {diff.charAt(0).toUpperCase() + diff.slice(1)}
                     </button>
                   );

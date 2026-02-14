@@ -45,7 +45,7 @@ export default function DashboardPage() {
 
         const scenario = scenarios[conversation.scenario];
         setScenarioTitle(scenario?.title || conversation.scenario);
-        setScenarioIcon(scenario?.icon || "\u{1F4AC}");
+        setScenarioIcon(scenario?.icon || "\u{00A8}");
 
         // If already analyzed, use existing analytics
         if (conversation.analytics?.tone) {
@@ -128,7 +128,7 @@ export default function DashboardPage() {
             {scenarioIcon} {scenarioTitle}
           </p>
           <h1 className="text-3xl font-bold text-gray-800 mb-3">
-            Conversation Report
+            CONVERSATION REPORT
           </h1>
           <div className="inline-flex items-center gap-2 bg-white rounded-full px-5 py-2 shadow-sm">
             <span className="text-xl font-bold text-rose-500">
@@ -139,7 +139,7 @@ export default function DashboardPage() {
 
         {/* Summary Card */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">Summary</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">SUMMARY</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
             {analytics.summary}
           </p>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
         {/* Radar Chart */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Skills Breakdown
+            SKILLS BREAKDOWN
           </h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -211,7 +211,7 @@ export default function DashboardPage() {
         {/* Suggestions */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            {"\u{1F4A1}"} Tips for Next Time
+            {"\u{00A4}"} TIPS FOR NEXT TIME
           </h2>
           <ul className="space-y-3">
             {analytics.suggestions.map((suggestion, i) => (
