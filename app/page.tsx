@@ -69,9 +69,6 @@ export default function Home() {
             <h1 className="text-8xl text-rose-600 advine-pixel-font leading-none">
               Cuepid
             </h1>
-            <p className="text-black mt-1">
-              Master the art of connection
-            </p>
           </div>
           <div className="flex items-center gap-4">
             {user && (
