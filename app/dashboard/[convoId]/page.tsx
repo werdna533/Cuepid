@@ -171,7 +171,7 @@ export default function DashboardPage() {
         {/* Radar Chart */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            SKILLS BREAKDOWN
+            COMMUNICATION SKILLS BREAKDOWN
           </h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">

@@ -44,7 +44,7 @@ The scenario was: "${conversation.scenario}" (${conversation.difficulty} difficu
 Transcript:
 ${transcript}
 
-Analyze the USER's (NOT the Partner's) communication skills. Return a JSON object with exactly this structure:
+Analyze the USER's (NOT the Partner's) communication skills, using the second person (you, your). Return a JSON object with exactly this structure:
 {
   "tone": "one word describing the user's overall tone (e.g., warm, nervous, confident, awkward, natural, forced, playful)",
   "engagement": <number 0-100, how actively they participated and kept the conversation going>,

@@ -201,7 +201,7 @@ export default function ProfilePage() {
         {radarData && (
           <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              AVERAGE SKILLS
+              AVERAGE PERFORMANCE
             </h2>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
