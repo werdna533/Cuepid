@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
 import { scenarios } from "@/lib/scenarios";
+import { getLevelProgress } from "@/lib/levels";
 
 interface UserData {
   level: number;
@@ -31,6 +32,26 @@ export default function Home() {
       localStorage.setItem("cuepid-user-id", id);
     }
 
+    // Restore settings from sessionStorage (when returning from chat)
+    const savedMode = sessionStorage.getItem("cuepid-conversation-mode") as ConversationMode;
+    const savedDifficulty = sessionStorage.getItem("cuepid-difficulty");
+    const savedGender = sessionStorage.getItem("cuepid-partner-gender") as PartnerGender;
+    
+    if (savedMode && (savedMode === "text" || savedMode === "voice")) {
+      setGlobalMode(savedMode);
+    }
+    if (savedDifficulty && ["easy", "medium", "hard"].includes(savedDifficulty)) {
+      setGlobalDifficulty(savedDifficulty);
+    }
+    if (savedGender && (savedGender === "female" || savedGender === "male")) {
+      setPartnerGender(savedGender);
+    }
+
+    // Clear settings after restoring to ensure they only persist during chat sessions
+    sessionStorage.removeItem("cuepid-conversation-mode");
+    sessionStorage.removeItem("cuepid-difficulty");
+    sessionStorage.removeItem("cuepid-partner-gender");
+
     fetch("/api/user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -54,6 +75,10 @@ export default function Home() {
   }, []);
 
   const startConversation = (scenarioId: string) => {
+    // Save current settings to sessionStorage before starting chat
+    sessionStorage.setItem("cuepid-conversation-mode", globalMode);
+    sessionStorage.setItem("cuepid-difficulty", globalDifficulty);
+    sessionStorage.setItem("cuepid-partner-gender", partnerGender);
     const difficulty = globalDifficulty;
     const mode = globalMode;
     
@@ -117,10 +142,19 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {user && (
               <div className="bg-white/80 rounded-full px-4 py-2 shadow-sm text-sm">
-                <span className="font-semibold text-gray-700">
-                  Lv. {user.level}
-                </span>
-                <span className="text-rose-400 ml-2">{user.xp} XP</span>
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold text-gray-700 whitespace-nowrap">
+                    Lv. {user.level}
+                  </span>
+                  {/* Inline XP Progress Bar */}
+                  <div className="flex-1 bg-rose-100 rounded-full h-1.5 min-w-16">
+                    <div
+                      className="bg-gradient-to-r from-rose-400 to-rose-500 h-1.5 rounded-full transition-all duration-500"
+                      style={{ width: `${getLevelProgress(user.xp).percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-rose-400 whitespace-nowrap">{user.xp} XP</span>
+                </div>
               </div>
             )}
             <button
@@ -195,9 +229,12 @@ export default function Home() {
             <span className="text-sm font-bold text-gray-700 whitespace-nowrap">Partner:</span>
             <div className="flex gap-2 w-full">
               <button
-                onClick={() => setPartnerGender("female")}
+                onClick={() => globalMode === "voice" && setPartnerGender("female")}
+                disabled={globalMode === "text"}
                 className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  partnerGender === "female"
+                  globalMode === "text"
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                    : partnerGender === "female"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
@@ -205,9 +242,12 @@ export default function Home() {
                 Female
               </button>
               <button
-                onClick={() => setPartnerGender("male")}
+                onClick={() => globalMode === "voice" && setPartnerGender("male")}
+                disabled={globalMode === "text"}
                 className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  partnerGender === "male"
+                  globalMode === "text"
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                    : partnerGender === "male"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}

@@ -246,6 +246,18 @@ export default function ChatPage() {
             key={i}
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
+            {/* AI Profile Picture */}
+            {msg.role === "model" && (
+              <div className="flex-shrink-0 mr-3 self-end mb-1">
+                <Image
+                  src="/scenarios/profile.png"
+                  alt="AI Assistant"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+              </div>
+            )}
             <div
               className={`max-w-[80%] sm:max-w-[70%] px-4 py-2.5 rounded-2xl ${
                 msg.role === "user"

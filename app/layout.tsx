@@ -8,9 +8,20 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "CUE-PID | CONVERSATION SKILLS TRAINER",
+  title: "Cuepid",
   description:
     "Practice and improve your conversation skills with AI-powered scenarios",
+  icons: {
+    icon: [
+      {
+        url: "/scenarios/favicon.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+    ],
+    shortcut: "/scenarios/favicon.png",
+    apple: "/scenarios/favicon.png",
+  },
 };
 
 export default function RootLayout({

@@ -100,6 +100,15 @@ button, input, textarea, select, div, span, a {
   border-radius: 0 !important;
 }
 
+/* Voice UI exceptions - allow rounded corners for voice elements */
+button.w-20.h-20.rounded-full {
+  border-radius: 50% !important;
+}
+div.bg-rose-50.rounded-xl,
+div[class*="bg-rose-50"][class*="rounded-xl"] {
+  border-radius: 0.75rem !important;
+}
+
 /* Change all shadows to pink - only on hover */
 [class*="hover:shadow"] {
   --tw-shadow-color: rgba(244, 63, 94, 0.25);
@@ -135,6 +144,9 @@ button, input, textarea, select, div, span, a {
 /* Exception: allow interactive buttons to change color on hover */
 button:hover.text-gray-600 {
   color: inherit !important;
+}
+button.text-gray-600.hover\:text-rose-500:hover {
+  color: #f43f5e !important;
 }
 /* Exception: keep grey text for disabled/locked buttons */
 button:disabled,
@@ -254,6 +266,15 @@ button, input, textarea, select, div, span, a {
   border-radius: 0 !important;
 }
 
+/* Voice UI exceptions - allow rounded corners for voice elements */
+button.w-20.h-20.rounded-full {
+  border-radius: 50% !important;
+}
+div.bg-rose-50.rounded-xl,
+div[class*="bg-rose-50"][class*="rounded-xl"] {
+  border-radius: 0.75rem !important;
+}
+
 /* Change all shadows to pink - only on hover */
 [class*="hover:shadow"] {
   --tw-shadow-color: rgba(244, 63, 94, 0.25);
@@ -290,6 +311,9 @@ button, input, textarea, select, div, span, a {
 /* Exception: allow interactive buttons to change color on hover */
 button:hover.text-gray-600 {
   color: inherit !important;
+}
+button.text-gray-600.hover\:text-rose-500:hover {
+  color: #f43f5e !important;
 }
 
 /* Exception: keep grey text for disabled/locked buttons */

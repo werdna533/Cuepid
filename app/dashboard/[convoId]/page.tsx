@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   RadarChart,
   PolarGrid,
@@ -75,23 +76,17 @@ export default function DashboardPage() {
     loadAndAnalyze();
   }, [convoId]);
 
-  useEffect(() => {
-    // Animate PNG backgrounds into position
-    const timer = setTimeout(() => {
-      const backgroundElement = document.querySelector('.dotted-background');
-      if (backgroundElement) {
-        backgroundElement.classList.add('animate-in');
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   if (loading) {
     return (
       <div className="min-h-screen dotted-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500 mx-auto mb-4" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={48}
+            height={48}
+            className="animate-spin mx-auto mb-4"
+          />
           <p className="text-gray-500 font-medium">
             Analyzing your conversation...
           </p>
@@ -150,21 +145,21 @@ export default function DashboardPage() {
           </button>
           <button
             onClick={() => router.push("/")}
-            className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
+            className="bg-white/80 hover:bg-white px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
           >
-            {"\u2190"} Home
+            Home
           </button>
         </div>
 
         {/* Report Header */}
         <div className="text-center mb-8">
           <p className="text-gray-400 text-sm mb-1">
-            {scenarioIcon} {scenarioTitle}
+            {scenarioTitle}
           </p>
           <h2 className="text-3xl font-bold text-gray-800 mb-3">
             CONVERSATION REPORT
           </h2>
-          <div className="inline-flex items-center gap-2 bg-white rounded-full px-5 py-2 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-white px-5 py-2 shadow-sm">
             <span className="text-xl font-bold text-rose-500">
               +{analytics.xpEarned} XP
             </span>
@@ -172,20 +167,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Summary Card */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
+        <div className="bg-white shadow-md p-6 mb-5">
           <h2 className="text-lg font-semibold text-gray-800 mb-2">SUMMARY</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
             {analytics.summary}
           </p>
           <div className="mt-3">
-            <span className="inline-block bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-sm font-medium capitalize">
+            <span className="inline-block bg-rose-100 text-rose-600 px-3 py-1 text-sm font-medium capitalize">
               Tone: {analytics.tone}
             </span>
           </div>
         </div>
 
         {/* Radar Chart */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
+        <div className="bg-white shadow-md p-6 mb-5">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             COMMUNICATION SKILLS BREAKDOWN
           </h2>
@@ -220,7 +215,7 @@ export default function DashboardPage() {
           {radarData.map((d) => (
             <div
               key={d.metric}
-              className="bg-white rounded-xl shadow-sm p-4 text-center"
+              className="bg-white shadow-sm p-4 text-center"
             >
               <div className={`text-2xl font-bold ${getScoreColor(d.value)}`}>
                 {d.value}
@@ -228,13 +223,13 @@ export default function DashboardPage() {
               <div className="text-xs text-gray-500 mt-1">{d.metric}</div>
             </div>
           ))}
-          <div className="bg-white rounded-xl shadow-sm p-4 text-center">
+          <div className="bg-white shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-700">
               {analytics.avgResponseLength}
             </div>
             <div className="text-xs text-gray-500 mt-1">Avg Words/Msg</div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-4 text-center">
+          <div className="bg-white shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-700">
               {(analytics.avgResponseTimeMs / 1000).toFixed(1)}s
             </div>
@@ -243,9 +238,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Suggestions */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+        <div className="bg-white shadow-md p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
-            {"\u{1F4A1}"} TIPS FOR NEXT TIME
+            TIPS FOR NEXT TIME
           </h2>
           <ul className="space-y-3">
             {analytics.suggestions.map((suggestion, i) => {
@@ -316,13 +311,13 @@ export default function DashboardPage() {
         <div className="flex gap-3">
           <button
             onClick={() => router.push("/")}
-            className="flex-1 bg-white text-rose-500 border border-rose-200 py-3 rounded-xl font-medium hover:bg-rose-50 transition-colors"
+            className="flex-1 bg-white text-rose-500 border border-rose-200 py-3 font-medium hover:bg-rose-50 transition-colors"
           >
             New Conversation
           </button>
           <button
             onClick={() => router.push("/profile")}
-            className="flex-1 bg-rose-500 text-white py-3 rounded-xl font-medium hover:bg-rose-600 transition-colors"
+            className="flex-1 bg-rose-500 text-white py-3 font-medium hover:bg-rose-600 transition-colors"
           >
             View Profile
           </button>

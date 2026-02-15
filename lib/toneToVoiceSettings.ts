@@ -44,9 +44,9 @@ export interface ToneConfig {
  * Default voice settings for neutral tone
  */
 export const DEFAULT_VOICE_SETTINGS: ElevenLabsVoiceSettings = {
-  stability: 0.55, // Optimized for smooth, consistent delivery
-  similarity_boost: 0.78, // Enhanced voice clarity
-  style: 0.35, // Lower for more natural conversation
+  stability: 0.68, // Optimized for smooth, consistent delivery
+  similarity_boost: 0.83, // Enhanced voice clarity
+  style: 0.21, // Lower for more natural conversation
   use_speaker_boost: true,
 };
 
@@ -56,145 +56,145 @@ export const DEFAULT_VOICE_SETTINGS: ElevenLabsVoiceSettings = {
  */
 export const TONE_MAPPINGS: Record<EmotionalTone, ToneConfig> = {
   romantic: {
-    stability: 0.52, // Smooth and consistent warmth
-    similarity_boost: 0.8, // Clear voice reproduction
-    style: 0.35, // Natural conversational intimacy
+    stability: 0.65, // Smooth and consistent warmth
+    similarity_boost: 0.85, // Clear voice reproduction
+    style: 0.21, // Natural conversational intimacy
     use_speaker_boost: true,
     speaking_rate: 0.98, // Near-natural pacing
     description: "Warm and intimate but natural delivery",
   },
   playful: {
-    stability: 0.48, // Balanced expressiveness and smoothness
-    similarity_boost: 0.77,
-    style: 0.38, // Natural playful energy without choppiness
+    stability: 0.61, // Balanced expressiveness and smoothness
+    similarity_boost: 0.82,
+    style: 0.24, // Natural playful energy without choppiness
     use_speaker_boost: true,
     speaking_rate: 1.02, // Slightly upbeat but natural
     description: "Energetic and fun delivery with varied intonation",
   },
   warm: {
-    stability: 0.53, // Smooth and inviting
-    similarity_boost: 0.78,
-    style: 0.32, // Very natural friendliness
+    stability: 0.66, // Smooth and inviting
+    similarity_boost: 0.84,
+    style: 0.19, // Very natural friendliness
     use_speaker_boost: true,
     speaking_rate: 0.97,
     description: "Friendly and approachable delivery",
   },
   shy: {
-    stability: 0.45, // Smooth hesitancy without artifacts
-    similarity_boost: 0.75,
-    style: 0.28, // Subtle and gentle
+    stability: 0.59, // Smooth hesitancy without artifacts
+    similarity_boost: 0.8,
+    style: 0.16, // Subtle and gentle
     use_speaker_boost: true, // Maintain clarity even when soft
     speaking_rate: 0.92, // Slightly slower but natural
     description: "Quiet, hesitant, and gentle delivery",
   },
   confused: {
-    stability: 0.5,
-    similarity_boost: 0.75, // Improved clarity
-    style: 0.35, // Natural uncertainty
+    stability: 0.63,
+    similarity_boost: 0.81, // Improved clarity
+    style: 0.21, // Natural uncertainty
     use_speaker_boost: true,
     speaking_rate: 0.94, // Slightly hesitant pacing
     description: "Uncertain with rising intonation patterns",
   },
   annoyed: {
-    stability: 0.56, // Controlled irritation
-    similarity_boost: 0.76,
-    style: 0.4, // Reduced to prevent choppy emphasis
+    stability: 0.69, // Controlled irritation
+    similarity_boost: 0.82,
+    style: 0.26, // Reduced to prevent choppy emphasis
     use_speaker_boost: true,
     speaking_rate: 1.03, // Slightly brisk but smooth
     description: "Clipped, impatient delivery",
   },
   cold: {
-    stability: 0.62, // Detached but not robotic
-    similarity_boost: 0.74, // Maintain voice quality
-    style: 0.22, // Minimal but smooth variation
+    stability: 0.74, // Detached but not robotic
+    similarity_boost: 0.79, // Maintain voice quality
+    style: 0.12, // Minimal but smooth variation
     use_speaker_boost: true,
     speaking_rate: 1.0,
     description: "Flat, emotionless, detached delivery",
   },
   distant: {
-    stability: 0.58, // Reserved but fluid
-    similarity_boost: 0.72, // Better voice fidelity
-    style: 0.25,
+    stability: 0.71, // Reserved but fluid
+    similarity_boost: 0.78, // Better voice fidelity
+    style: 0.14,
     use_speaker_boost: true, // Clarity even when withdrawn
     speaking_rate: 0.96,
     description: "Reserved and emotionally withdrawn",
   },
   sarcastic: {
-    stability: 0.5, // Smooth ironic delivery
-    similarity_boost: 0.76,
-    style: 0.42, // Subtle emphasis without choppiness
+    stability: 0.63, // Smooth ironic delivery
+    similarity_boost: 0.82,
+    style: 0.28, // Subtle emphasis without choppiness
     use_speaker_boost: true,
     speaking_rate: 1.0,
     description: "Exaggerated with ironic emphasis",
   },
   nervous: {
-    stability: 0.42, // Anxious energy without artifacts
-    similarity_boost: 0.74,
-    style: 0.38, // Natural nervous variation
+    stability: 0.55, // Anxious energy without artifacts
+    similarity_boost: 0.8,
+    style: 0.24, // Natural nervous variation
     use_speaker_boost: true, // Clarity despite anxiousness
-    speaking_rate: 1.06, // Slightly rushed but natural
+    speaking_rate: 1.05, // Slightly rushed but natural
     description: "Shaky, rushed, uncertain delivery",
   },
   excited: {
-    stability: 0.46, // Energetic but smooth
-    similarity_boost: 0.78,
-    style: 0.4, // Natural enthusiasm without exaggeration
+    stability: 0.59, // Energetic but smooth
+    similarity_boost: 0.83,
+    style: 0.26, // Natural enthusiasm without exaggeration
     use_speaker_boost: true,
-    speaking_rate: 1.08, // Upbeat but not rushed
+    speaking_rate: 1.07, // Upbeat but not rushed
     description: "High energy, enthusiastic delivery",
   },
   sad: {
-    stability: 0.48, // Melancholic but clear
-    similarity_boost: 0.76,
-    style: 0.3, // Gentle sadness
+    stability: 0.62, // Melancholic but clear
+    similarity_boost: 0.81,
+    style: 0.18, // Gentle sadness
     use_speaker_boost: true, // Maintain intelligibility
     speaking_rate: 0.9, // Slower but fluid
     description: "Subdued, downcast delivery",
   },
   angry: {
-    stability: 0.52, // Controlled intensity
-    similarity_boost: 0.77,
-    style: 0.42, // Forceful without harsh choppiness
+    stability: 0.65, // Controlled intensity
+    similarity_boost: 0.82,
+    style: 0.28, // Forceful without harsh choppiness
     use_speaker_boost: true,
-    speaking_rate: 1.05, // Slightly forceful pacing
+    speaking_rate: 1.04, // Slightly forceful pacing
     description: "Intense, forceful delivery",
   },
   neutral: {
-    stability: 0.55, // Perfectly balanced smoothness
-    similarity_boost: 0.78,
-    style: 0.35, // Very natural conversation
+    stability: 0.68, // Perfectly balanced smoothness
+    similarity_boost: 0.83,
+    style: 0.21, // Very natural conversation
     use_speaker_boost: true,
     speaking_rate: 1.0,
     description: "Natural, conversational delivery",
   },
   flirty: {
-    stability: 0.5, // Smooth teasing
-    similarity_boost: 0.79,
-    style: 0.4, // Natural flirtation without overdoing it
+    stability: 0.63, // Smooth teasing
+    similarity_boost: 0.84,
+    style: 0.26, // Natural flirtation without overdoing it
     use_speaker_boost: true,
     speaking_rate: 0.98,
     description: "Teasing, playful with warmth",
   },
   supportive: {
-    stability: 0.54, // Warm and steady
-    similarity_boost: 0.78,
-    style: 0.36, // Gentle empathy
+    stability: 0.67, // Warm and steady
+    similarity_boost: 0.83,
+    style: 0.22, // Gentle empathy
     use_speaker_boost: true,
     speaking_rate: 0.95, // Calm, measured pacing
     description: "Caring, empathetic delivery",
   },
   defensive: {
-    stability: 0.54, // Controlled tension
-    similarity_boost: 0.76,
-    style: 0.38, // Natural guardedness
+    stability: 0.67, // Controlled tension
+    similarity_boost: 0.81,
+    style: 0.24, // Natural guardedness
     use_speaker_boost: true,
     speaking_rate: 1.02,
     description: "Guarded, slightly tense delivery",
   },
   hurt: {
-    stability: 0.47, // Vulnerable but clear
-    similarity_boost: 0.75,
-    style: 0.32, // Subtle emotional pain
+    stability: 0.61, // Vulnerable but clear
+    similarity_boost: 0.80,
+    style: 0.19, // Subtle emotional pain
     use_speaker_boost: true, // Maintain clarity
     speaking_rate: 0.92, // Slower but fluid
     description: "Wounded, vulnerable delivery",
