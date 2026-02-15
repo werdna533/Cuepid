@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
 import { scenarios } from "@/lib/scenarios";
 
@@ -14,12 +15,14 @@ interface UserData {
 }
 
 type ConversationMode = "text" | "voice";
+type PartnerGender = "female" | "male";
 
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [globalMode, setGlobalMode] = useState<ConversationMode>("text");
   const [globalDifficulty, setGlobalDifficulty] = useState("easy");
+  const [partnerGender, setPartnerGender] = useState<PartnerGender>("female");
 
   useEffect(() => {
     let id = localStorage.getItem("cuepid-user-id");
@@ -38,17 +41,57 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
+  useEffect(() => {
+    // Trigger slide-up animations after component mounts
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.slide-up-element');
+      elements.forEach((el, index) => {
+        el.classList.add(`animate-slide-up-${Math.min(index + 1, 3)}`);
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const startConversation = (scenarioId: string) => {
     const difficulty = globalDifficulty;
     const mode = globalMode;
     
+    // Build weaknesses param for practice_weaknesses scenario
+    const weaknessesParam = scenarioId === "practice_weaknesses" && user?.weaknesses?.length 
+      ? `&weaknesses=${encodeURIComponent(user.weaknesses.join(","))}`
+      : "";
+    
     if (mode === "voice") {
       // Convert difficulty name to number for voice mode
       const difficultyNum = difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 8;
-      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}`);
+      router.push(`/chat/${scenarioId}/voice?difficulty=${difficultyNum}&gender=${partnerGender}${weaknessesParam}`);
     } else {
-      router.push(`/chat/${scenarioId}?difficulty=${difficulty}`);
+      router.push(`/chat/${scenarioId}?difficulty=${difficulty}&gender=${partnerGender}${weaknessesParam}`);
     }
+  };
+
+  // Helper to get dynamic description for practice_weaknesses scenario
+  const getScenarioDescription = (scenario: typeof scenarios[string]) => {
+    if (scenario.id === "practice_weaknesses" && user?.weaknesses?.length) {
+      const formatted = user.weaknesses.map(w => 
+        w.charAt(0).toUpperCase() + w.slice(1)
+      ).join(" and ");
+      return (
+        <span>
+          Practice <strong>{formatted.toLowerCase()}</strong> in a supportive chat with a friend.
+        </span>
+      );
+    }
+    return scenario.description;
+  };
+
+  // Check if scenario is locked
+  const isScenarioLocked = (scenarioId: string) => {
+    if (scenarioId === "practice_weaknesses") {
+      return !user?.weaknesses?.length || user.weaknesses.length === 0;
+    }
+    return false;
   };
 
   const categoryColors: Record<string, string> = {
@@ -62,7 +105,7 @@ export default function Home() {
     <div className="min-h-screen dotted-background">
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => router.push("/")}
             className="hover:opacity-80 transition-opacity cursor-pointer"
@@ -82,7 +125,7 @@ export default function Home() {
             )}
             <button
               onClick={() => router.push("/profile")}
-              className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
+              className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-black hover:text-rose-500 transition-colors cursor-pointer"
             >
               Profile
             </button>
@@ -90,38 +133,38 @@ export default function Home() {
         </div>
 
         {/* Global Mode & Difficulty Toggle */}
-        <div className="mb-8 bg-white rounded-2xl shadow-md p-5 flex flex-wrap gap-6 items-center">
+        <div className="mb-8 bg-white rounded-2xl shadow-md p-6 flex gap-8 items-center justify-between slide-up-element">
           {/* Mode Toggle */}
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-gray-700 min-w-fit">Mode:</span>
-            <div className="flex gap-2">
+          <div className="flex gap-3 items-center flex-1 justify-center">
+            <span className="text-sm font-bold text-gray-700 whitespace-nowrap">Mode:</span>
+            <div className="flex gap-2 w-full">
               <button
                 onClick={() => setGlobalMode("text")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   globalMode === "text"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                💬 Text
+                Text
               </button>
               <button
                 onClick={() => setGlobalMode("voice")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   globalMode === "voice"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                🎤 Voice
+                Voice
               </button>
             </div>
           </div>
 
           {/* Difficulty Toggle */}
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-gray-700 min-w-fit">Difficulty:</span>
-            <div className="flex gap-2">
+          <div className="flex gap-3 items-center flex-1 justify-center">
+            <span className="text-sm font-bold text-gray-700 whitespace-nowrap">Difficulty:</span>
+            <div className="flex gap-2 w-full">
               {(["easy", "medium", "hard"] as const).map((diff) => {
                 const userLevel = user?.level ?? 1;
                 const locked =
@@ -132,7 +175,7 @@ export default function Home() {
                     key={diff}
                     onClick={() => !locked && setGlobalDifficulty(diff)}
                     disabled={locked}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                       globalDifficulty === diff
                         ? "bg-rose-500 text-white shadow-lg scale-105"
                         : locked
@@ -140,47 +183,135 @@ export default function Home() {
                           : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                     }`}
                   >
-                    {locked ? "🔒" : diff.charAt(0).toUpperCase() + diff.slice(1)}
+                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
                   </button>
                 );
               })}
             </div>
           </div>
+
+          {/* Partner Gender Toggle */}
+          <div className="flex gap-3 items-center flex-1 justify-center">
+            <span className="text-sm font-bold text-gray-700 whitespace-nowrap">Partner:</span>
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={() => setPartnerGender("female")}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  partnerGender === "female"
+                    ? "bg-rose-500 text-white shadow-lg scale-105"
+                    : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+              >
+                Female
+              </button>
+              <button
+                onClick={() => setPartnerGender("male")}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  partnerGender === "male"
+                    ? "bg-rose-500 text-white shadow-lg scale-105"
+                    : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+              >
+                Male
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Scenario Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {Object.values(scenarios).map((scenario) => (
-            <div
-              key={scenario.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-5 flex flex-col"
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <span className="text-3xl">{scenario.icon}</span>
-                <div className="min-w-0">
-                  <h2 className="text-lg font-semibold text-gray-800 leading-tight">
-                    {scenario.title.toUpperCase()}
-                  </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.values(scenarios).map((scenario, index) => {
+            const locked = isScenarioLocked(scenario.id);
+            return (
+              <div
+                key={scenario.id}
+                className={`bg-white rounded-2xl shadow-md transition-shadow p-5 flex flex-col h-full slide-up-element ${
+                  locked ? "opacity-60" : "hover:shadow-lg"
+                }`}
+                style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+              >
+                <div className="flex items-start gap-3 mb-1">
+                  {scenario.id === "planning_a_date" ? (
+                    <Image
+                      src="/scenarios/planning_a_date.png"
+                      alt={scenario.title}
+                      width={48}
+                      height={48}
+                      className="rounded-lg flex-shrink-0"
+                    />
+                  ) : scenario.id === "asking_someone_out" || scenario.id === "making_new_friends" ? (
+                    <Image
+                      src={`/scenarios/${scenario.id}.png`}
+                      alt={scenario.title}
+                      width={48}
+                      height={48}
+                      className="rounded-lg flex-shrink-0"
+                    />
+                  ) : scenario.id === "resolving_misunderstanding" ? (
+                    <Image
+                      src="/scenarios/resolving_a_misunderstanding.png"
+                      alt={scenario.title}
+                      width={48}
+                      height={48}
+                      className="rounded-lg flex-shrink-0"
+                    />
+                  ) : scenario.id === "difficult_conversation" ? (
+                    <Image
+                      src="/scenarios/setting_boundaries.png"
+                      alt={scenario.title}
+                      width={48}
+                      height={48}
+                      className="rounded-lg flex-shrink-0"
+                    />
+                  ) : scenario.id === "practice_weaknesses" ? (
+                    <Image
+                      src="/scenarios/practice_your_weaknesses.png"
+                      alt={scenario.title}
+                      width={48}
+                      height={48}
+                      className="rounded-lg flex-shrink-0"
+                    />
+                  ) : (
+                    <span className="text-3xl flex-shrink-0">{scenario.icon}</span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-lg font-bold text-gray-800 leading-tight">
+                      {scenario.title.toUpperCase()}
+                    </h2>
+                  </div>
+                </div>
+
+                <div className="mb-2">
                   <span
                     className={`text-xs font-medium uppercase ${categoryColors[scenario.category] || "text-gray-400"}`}
                   >
                     {scenario.category}
                   </span>
                 </div>
+
+                <p className="text-gray-500 text-sm mb-4 flex-1 leading-relaxed">
+                  {getScenarioDescription(scenario)}
+                </p>
+
+                {locked ? (
+                  <button
+                    disabled
+                    className="w-full bg-gray-300 text-gray-500 py-2.5 rounded-xl font-medium cursor-not-allowed flex items-center justify-center gap-2"
+                    title="Complete some conversations first to identify your weaknesses"
+                  >
+                    Locked
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => startConversation(scenario.id)}
+                    className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    {globalMode === "voice" ? "Start Voice Chat" : "Start Chat"}
+                  </button>
+                )}
               </div>
-
-              <p className="text-gray-500 text-sm mb-4 flex-1">
-                {scenario.description}
-              </p>
-
-              <button
-                onClick={() => startConversation(scenario.id)}
-                className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
-              >
-                {globalMode === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

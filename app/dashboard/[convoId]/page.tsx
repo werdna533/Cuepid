@@ -73,6 +73,18 @@ export default function DashboardPage() {
     loadAndAnalyze();
   }, [convoId]);
 
+  useEffect(() => {
+    // Animate PNG backgrounds into position
+    const timer = setTimeout(() => {
+      const backgroundElement = document.querySelector('.dotted-background');
+      if (backgroundElement) {
+        backgroundElement.classList.add('animate-in');
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen dotted-background flex items-center justify-center">
@@ -173,7 +185,7 @@ export default function DashboardPage() {
         {/* Radar Chart */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            SKILLS BREAKDOWN
+            COMMUNICATION SKILLS BREAKDOWN
           </h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">

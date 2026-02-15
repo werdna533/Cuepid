@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { scenarios } from "@/lib/scenarios";
 import VoiceRecorder from "@/app/components/VoiceRecorder";
 import AudioPlayer from "@/app/components/AudioPlayer";
 import { VoiceMetrics } from "@/lib/voiceAnalytics";
-import { EmotionalTone } from "@/lib/toneToVoiceSettings";
+import { EmotionalTone, PartnerGender } from "@/lib/toneToVoiceSettings";
 
 interface VoiceMessage {
   role: "user" | "model";
@@ -25,6 +26,8 @@ export default function VoiceChatPage() {
   const searchParams = useSearchParams();
   const scenarioId = params.scenarioId as string;
   const difficulty = parseInt(searchParams.get("difficulty") || "3");
+  const gender = (searchParams.get("gender") || "female") as PartnerGender;
+  const weaknesses = searchParams.get("weaknesses")?.split(",").filter(Boolean) || [];
   const scenario = scenarios[scenarioId];
 
   const [messages, setMessages] = useState<VoiceMessage[]>([]);
@@ -79,6 +82,7 @@ export default function VoiceChatPage() {
           text: scenario.starterMessage,
           scenarioCategory: scenario.category,
           tone: "warm",
+          gender,
         }),
       });
 
@@ -178,6 +182,8 @@ export default function VoiceChatPage() {
           })),
           voiceMetricsHistory,
           desiredTone: currentTone,
+          gender,
+          userWeaknesses: weaknesses,
         }),
       });
 
@@ -216,6 +222,7 @@ export default function VoiceChatPage() {
           scenarioCategory: scenario?.category,
           tone,
           difficulty: newDifficulty,
+          gender,
         }),
       });
 
@@ -362,8 +369,51 @@ export default function VoiceChatPage() {
             ←
           </button>
           <div>
-            <h1 className="text-base font-semibold text-gray-800">
-              {scenario.icon} {scenario.title}
+            <h1 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+              {scenario.id === "planning_a_date" ? (
+                <Image
+                  src="/scenarios/planning_a_date.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "asking_someone_out" || scenario.id === "making_new_friends" ? (
+                <Image
+                  src={`/scenarios/${scenario.id}.png`}
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "resolving_misunderstanding" ? (
+                <Image
+                  src="/scenarios/resolving_a_misunderstanding.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "difficult_conversation" ? (
+                <Image
+                  src="/scenarios/setting_boundaries.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "practice_weaknesses" ? (
+                <Image
+                  src="/scenarios/practice_your_weaknesses.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : (
+                <span>{scenario.icon}</span>
+              )}
+              {scenario.title}
             </h1>
             <div className="flex items-center gap-2">
               <span className="text-xs text-rose-400">

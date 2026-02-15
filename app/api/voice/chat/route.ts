@@ -9,7 +9,7 @@ import {
   calculateDifficultyAdjustment,
   applyDifficultyAdjustment,
 } from "@/lib/difficultyEngine";
-import { EmotionalTone } from "@/lib/toneToVoiceSettings";
+import { EmotionalTone, PartnerGender } from "@/lib/toneToVoiceSettings";
 
 const MAX_RETRIES = 3;
 
@@ -29,6 +29,7 @@ interface VoiceChatRequest {
   userWeaknesses?: string[];
   voiceMetricsHistory?: VoiceMetrics[];
   desiredTone?: EmotionalTone;
+  gender?: PartnerGender;
 }
 
 interface VoiceChatResponse {
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
       userWeaknesses = [],
       voiceMetricsHistory = [],
       desiredTone,
+      gender = "female",
     } = body;
 
     const scenario = scenarios[scenarioId];
@@ -101,6 +103,17 @@ export async function POST(req: NextRequest) {
     // Build system prompt with difficulty adjustments
     const difficultyKey = difficulty <= 3 ? "easy" : difficulty <= 7 ? "medium" : "hard";
     let systemPrompt = scenario.systemPrompts[difficultyKey];
+    
+    // Replace {{WEAKNESSES}} placeholder if present
+    if (userWeaknesses.length > 0 && systemPrompt.includes("{{WEAKNESSES}}")) {
+      const formattedWeaknesses = userWeaknesses.join(", ");
+      systemPrompt = systemPrompt.replace("{{WEAKNESSES}}", formattedWeaknesses);
+    }
+    
+    // Add gender context to the prompt
+    const genderIdentity = gender === "male" ? "You are male." : "You are female.";
+    systemPrompt = systemPrompt + `\n\n${genderIdentity}`;
+    
     systemPrompt += getDifficultyPromptModifier(difficultySettings);
 
     // Add voice-specific context

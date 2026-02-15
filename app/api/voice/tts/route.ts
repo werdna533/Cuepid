@@ -4,6 +4,8 @@ import {
   getPersonaForScenario,
   adjustForDifficulty,
   EmotionalTone,
+  PartnerGender,
+  VOICE_IDS,
 } from "@/lib/toneToVoiceSettings";
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
@@ -18,6 +20,7 @@ export interface TTSRequest {
   tone?: EmotionalTone | string;
   voiceId?: string;
   difficulty?: number;
+  gender?: PartnerGender;
 }
 
 export async function POST(req: NextRequest) {
@@ -31,17 +34,20 @@ export async function POST(req: NextRequest) {
     }
 
     const body: TTSRequest = await req.json();
-    const { text, scenarioCategory, tone, voiceId, difficulty } = body;
+    const { text, scenarioCategory, tone, voiceId, difficulty, gender } = body;
 
     if (!text || text.trim().length === 0) {
       return Response.json({ error: "Text is required" }, { status: 400 });
     }
 
-    // Get voice persona based on scenario category
+    // Get voice persona based on scenario category and gender
     let selectedVoiceId = voiceId || DEFAULT_VOICE_ID;
     if (scenarioCategory && !voiceId) {
-      const persona = getPersonaForScenario(scenarioCategory);
+      const persona = getPersonaForScenario(scenarioCategory, gender);
       selectedVoiceId = persona.voiceId;
+    } else if (gender && !voiceId) {
+      // If only gender is specified without category, use neutral voice for that gender
+      selectedVoiceId = VOICE_IDS[gender].neutral;
     }
 
     // Get voice settings based on tone

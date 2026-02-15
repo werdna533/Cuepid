@@ -157,21 +157,21 @@ export async function POST(req: NextRequest) {
     const similarConversationsText =
       similarConversations.length > 0
         ? similarConversations
-            .map(
-              (result, index) =>
-                `${index + 1}. Similarity ${(result.score * 100).toFixed(1)}%, Scenario: ${result.item.scenario || "unknown"}, Difficulty: ${result.item.difficulty || "unknown"}, Summary: ${result.item.summary}`
-            )
-            .join("\n")
+          .map(
+            (result, index) =>
+              `${index + 1}. Similarity ${(result.score * 100).toFixed(1)}%, Scenario: ${result.item.scenario || "unknown"}, Difficulty: ${result.item.difficulty || "unknown"}, Summary: ${result.item.summary}`
+          )
+          .join("\n")
         : "No similar past conversations found.";
 
     const bookKnowledgeText =
       knowledgeChunks.length > 0
         ? knowledgeChunks
-            .map(
-              (result, index) =>
-                `${index + 1}. Similarity ${(result.score * 100).toFixed(1)}%, Source: ${result.item.bookTitle}${result.item.chapterTitle ? ` - ${result.item.chapterTitle}` : ""}, Excerpt: ${result.item.content.slice(0, 350)}`
-            )
-            .join("\n")
+          .map(
+            (result, index) =>
+              `${index + 1}. Similarity ${(result.score * 100).toFixed(1)}%, Source: ${result.item.bookTitle}${result.item.chapterTitle ? ` - ${result.item.chapterTitle}` : ""}, Excerpt: ${result.item.content.slice(0, 350)}`
+          )
+          .join("\n")
         : "No book knowledge retrieved.";
 
     const rawReferenceSources = [
@@ -198,13 +198,14 @@ The scenario was: "${conversation.scenario}" (${conversation.difficulty} difficu
 Transcript:
 ${transcript}
 
+
 RAG context - similar past conversations from this user:
 ${similarConversationsText}
 
 RAG context - relationship communication knowledge:
 ${bookKnowledgeText}
 
-Analyze the USER's (NOT the Partner's) communication skills. Return a JSON object with exactly this structure:
+Analyze the USER's (NOT the Partner's) communication skills, using the second person (you, your). Return a JSON object with exactly this structure:
 {
   "tone": "one word describing the user's overall tone (e.g., warm, nervous, confident, awkward, natural, forced, playful)",
   "engagement": <number 0-100, how actively they participated and kept the conversation going>,
@@ -242,12 +243,12 @@ Requirements:
     const avgResponseLength =
       userMessages.length > 0
         ? Math.round(
-            userMessages.reduce(
-              (sum: number, m: { content: string }) =>
-                sum + m.content.split(" ").length,
-              0
-            ) / userMessages.length
-          )
+          userMessages.reduce(
+            (sum: number, m: { content: string }) =>
+              sum + m.content.split(" ").length,
+            0
+          ) / userMessages.length
+        )
         : 0;
 
     // Calculate average response time (time between model message and user reply)
