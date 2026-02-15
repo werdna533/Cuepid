@@ -18,6 +18,8 @@ export interface IVoiceMetrics {
   clarityScore: number;
 }
 
+export type SuggestionItem = string | { text: string; source?: string };
+
 export interface IAnalytics {
   tone: string;
   engagement: number;
@@ -27,7 +29,7 @@ export interface IAnalytics {
   confidence: number;
   avgResponseLength: number;
   avgResponseTimeMs: number;
-  suggestions: string[];
+  suggestions: SuggestionItem[];
   ragInsights: string[];
   referenceSources: string[];
   xpEarned: number;
@@ -84,7 +86,7 @@ const ConversationSchema = new Schema<IConversation>(
         confidence: Number,
         avgResponseLength: Number,
         avgResponseTimeMs: Number,
-        suggestions: [String],
+        suggestions: [Schema.Types.Mixed],
         ragInsights: [String],
         referenceSources: [String],
         xpEarned: Number,
