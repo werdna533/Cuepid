@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 interface AudioPlayerProps {
   audioUrl: string | null;
@@ -79,7 +80,13 @@ export default function AudioPlayer({
     return (
       <div className="flex items-center gap-3 bg-rose-50 rounded-xl px-4 py-3">
         <div className="w-10 h-10 rounded-full bg-rose-200 flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={20}
+            height={20}
+            className="animate-spin"
+          />
         </div>
         <div className="flex-1">
           <div className="flex gap-1">
@@ -107,7 +114,13 @@ export default function AudioPlayer({
         className="w-10 h-10 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition-colors flex-shrink-0"
       >
         {playState === "loading" ? (
-          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={20}
+            height={20}
+            className="animate-spin"
+          />
         ) : playState === "playing" ? (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />

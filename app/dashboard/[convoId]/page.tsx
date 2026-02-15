@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   RadarChart,
   PolarGrid,
@@ -71,23 +72,17 @@ export default function DashboardPage() {
     loadAndAnalyze();
   }, [convoId]);
 
-  useEffect(() => {
-    // Animate PNG backgrounds into position
-    const timer = setTimeout(() => {
-      const backgroundElement = document.querySelector('.dotted-background');
-      if (backgroundElement) {
-        backgroundElement.classList.add('animate-in');
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   if (loading) {
     return (
       <div className="min-h-screen dotted-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500 mx-auto mb-4" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={48}
+            height={48}
+            className="animate-spin mx-auto mb-4"
+          />
           <p className="text-gray-500 font-medium">
             Analyzing your conversation...
           </p>

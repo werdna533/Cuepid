@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   RadarChart,
   PolarGrid,
@@ -136,7 +137,13 @@ function VoiceDashboardContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500 mx-auto mb-4" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={48}
+            height={48}
+            className="animate-spin mx-auto mb-4"
+          />
           <p className="text-gray-500 font-medium">Analyzing your voice conversation...</p>
           <p className="text-gray-400 text-sm mt-1">This may take a few seconds</p>
         </div>
@@ -529,7 +536,13 @@ export default function VoiceDashboardPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={48}
+            height={48}
+            className="animate-spin"
+          />
         </div>
       }
     >

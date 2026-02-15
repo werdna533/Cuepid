@@ -82,7 +82,13 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen dotted-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500" />
+        <Image
+          src="/scenarios/favicon.png"
+          alt="Loading"
+          width={48}
+          height={48}
+          className="animate-spin"
+        />
       </div>
     );
   }

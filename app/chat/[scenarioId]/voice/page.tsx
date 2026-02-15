@@ -131,6 +131,55 @@ export default function VoiceChatPage() {
     }
   };
 
+  // Helper function to detect non-speech audio patterns
+  const isNonSpeechAudio = (transcript: string): boolean => {
+    const nonSpeechPatterns = [
+      // Common ambient sound descriptions
+      /\(.*whoosh.*\)/i,
+      /\(.*background\s+music.*\)/i,
+      /\(.*ambient.*noise.*\)/i,
+      /\(.*silence.*\)/i,
+      /\(.*static.*\)/i,
+      /\(.*wind.*noise.*\)/i,
+      /\(.*breathing.*\)/i,
+      /\(.*rustling.*\)/i,
+      /\(.*clicking.*\)/i,
+      /\(.*tapping.*\)/i,
+      /\(.*keyboard.*\)/i,
+      /\(.*mouse.*click.*\)/i,
+      /\(.*fan.*noise.*\)/i,
+      /\(.*air.*conditioning.*\)/i,
+      /\(.*traffic.*\)/i,
+      /\(.*footsteps.*\)/i,
+      /\(.*door.*\)/i,
+      /\(.*phone.*\)/i,
+      /\(.*notification.*\)/i,
+      /\(.*beep.*\)/i,
+      /\(.*buzz.*\)/i,
+      /\(.*hum.*\)/i,
+      // Generic non-speech indicators
+      /\(.*sound.*\)/i,
+      /\(.*noise.*\)/i,
+      /\(.*audio.*\)/i,
+      /\(.*music.*\)/i,
+      /\[.*sound.*\]/i,
+      /\[.*noise.*\]/i,
+      // Very short or repetitive content that's likely not speech
+      /^[a-z]{1,2}\.?$/i, // Single letters or very short content
+      /^(ah+|uh+|mm+|hm+)\.?$/i, // Repeated vocal sounds that aren't words
+    ];
+
+    const trimmedTranscript = transcript.trim().toLowerCase();
+    
+    // Check if transcript is too short to be meaningful speech
+    if (trimmedTranscript.length < 3) {
+      return true;
+    }
+    
+    // Check against known non-speech patterns
+    return nonSpeechPatterns.some(pattern => pattern.test(transcript));
+  };
+
   const handleRecordingComplete = async (audioBlob: Blob, durationMs: number) => {
     setConversationState("processing");
 
@@ -152,6 +201,14 @@ export default function VoiceChatPage() {
 
       if (!transcript || transcript.trim().length === 0) {
         alert("Could not understand audio. Please try again.");
+        setConversationState("idle");
+        return;
+      }
+
+      // Check for non-speech audio patterns
+      if (isNonSpeechAudio(transcript)) {
+        console.log("Non-speech audio detected:", transcript);
+        alert("I detected background noise instead of speech. Please try speaking again.");
         setConversationState("idle");
         return;
       }
@@ -520,7 +577,13 @@ export default function VoiceChatPage() {
           )}
           {conversationState === "processing" && (
             <div className="flex items-center justify-center gap-2 text-gray-500">
-              <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+              <Image
+                src="/scenarios/favicon.png"
+                alt="Processing"
+                width={16}
+                height={16}
+                className="animate-spin"
+              />
               <span className="text-sm">
                 {isGeneratingAudio ? "Generating response..." : "Processing..."}
               </span>
@@ -548,7 +611,13 @@ export default function VoiceChatPage() {
         {isGeneratingAudio && !currentAudioUrl && (
           <div className="mb-4 max-w-md mx-auto flex items-center justify-center gap-3 bg-rose-50 rounded-xl px-4 py-3">
             <div className="w-10 h-10 rounded-full bg-rose-200 flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+              <Image
+                src="/scenarios/favicon.png"
+                alt="Generating audio"
+                width={20}
+                height={20}
+                className="animate-spin"
+              />
             </div>
             <span className="text-rose-600 text-sm font-medium">Generating audio...</span>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 interface VoiceRecorderProps {
   onRecordingComplete: (audioBlob: Blob, durationMs: number) => void;
@@ -274,7 +275,13 @@ export default function VoiceRecorder({
           <div className="w-7 h-7 bg-white rounded-sm" />
         ) : recordingState === "processing" ? (
           // Loading spinner
-          <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+          <Image
+            src="/scenarios/favicon.png"
+            alt="Loading"
+            width={32}
+            height={32}
+            className="animate-spin"
+          />
         ) : (
           // Microphone icon
           <svg
