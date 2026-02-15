@@ -134,9 +134,10 @@ export default function VoiceChatPage() {
   // Helper function to detect non-speech audio patterns
   const isNonSpeechAudio = (transcript: string): boolean => {
     const nonSpeechPatterns = [
-      // Common ambient sound descriptions
+      // English patterns
       /\(.*whoosh.*\)/i,
       /\(.*background\s+music.*\)/i,
+      /\(.*background\s+noise.*\)/i,
       /\(.*ambient.*noise.*\)/i,
       /\(.*silence.*\)/i,
       /\(.*static.*\)/i,
@@ -157,27 +158,89 @@ export default function VoiceChatPage() {
       /\(.*beep.*\)/i,
       /\(.*buzz.*\)/i,
       /\(.*hum.*\)/i,
-      // Generic non-speech indicators
       /\(.*sound.*\)/i,
       /\(.*noise.*\)/i,
       /\(.*audio.*\)/i,
       /\(.*music.*\)/i,
+      
+      // Korean patterns (배경 소음 = background noise)
+      /\(.*배경.*소음.*\)/,
+      /\(.*소음.*\)/,
+      /\(.*잡음.*\)/,
+      /\(.*바람.*소리.*\)/,
+      /\(.*음악.*\)/,
+      /\(.*소리.*\)/,
+      
+      // Chinese patterns (背景噪音 = background noise)
+      /\(.*背景.*噪音.*\)/,
+      /\(.*背景.*音乐.*\)/,
+      /\(.*噪音.*\)/,
+      /\(.*杂音.*\)/,
+      /\(.*声音.*\)/,
+      /\(.*音乐.*\)/,
+      /\(.*风声.*\)/,
+      
+      // Japanese patterns
+      /\(.*背景.*ノイズ.*\)/,
+      /\(.*雑音.*\)/,
+      /\(.*音楽.*\)/,
+      /\(.*音.*\)/,
+      
+      // Spanish patterns
+      /\(.*ruido.*de.*fondo.*\)/i,
+      /\(.*ruido.*\)/i,
+      /\(.*sonido.*\)/i,
+      /\(.*música.*\)/i,
+      
+      // French patterns
+      /\(.*bruit.*de.*fond.*\)/i,
+      /\(.*bruit.*\)/i,
+      /\(.*musique.*\)/i,
+      /\(.*son.*\)/i,
+      
+      // German patterns
+      /\(.*hintergrund.*geräusch.*\)/i,
+      /\(.*geräusch.*\)/i,
+      /\(.*musik.*\)/i,
+      
+      // Square bracket variations
       /\[.*sound.*\]/i,
       /\[.*noise.*\]/i,
+      /\[.*music.*\]/i,
+      /\[.*소음.*\]/,
+      /\[.*噪音.*\]/,
+      
+      // Generic patterns that work across languages
+      /^\(.*\)$/,  // Anything entirely in parentheses
+      /^\[.*\]$/,  // Anything entirely in square brackets
+      
       // Very short or repetitive content that's likely not speech
-      /^[a-z]{1,2}\.?$/i, // Single letters or very short content
-      /^(ah+|uh+|mm+|hm+)\.?$/i, // Repeated vocal sounds that aren't words
+      /^[a-z]{1,2}\.?$/i,
+      /^(ah+|uh+|mm+|hm+)\.?$/i,
+      /^[^\p{L}\p{N}]*$/u, // Only symbols/punctuation, no letters or numbers
     ];
 
-    const trimmedTranscript = transcript.trim().toLowerCase();
+    const trimmedTranscript = transcript.trim();
     
     // Check if transcript is too short to be meaningful speech
     if (trimmedTranscript.length < 3) {
       return true;
     }
     
+    // Check if it's only punctuation or symbols
+    if (!/\p{L}/u.test(trimmedTranscript)) {
+      return true;
+    }
+    
     // Check against known non-speech patterns
-    return nonSpeechPatterns.some(pattern => pattern.test(transcript));
+    const isNonSpeech = nonSpeechPatterns.some(pattern => pattern.test(transcript));
+    
+    // Add debug logging to track filtering behavior
+    if (isNonSpeech) {
+      console.log('[Voice Filter] Blocked non-speech audio:', transcript);
+    }
+    
+    return isNonSpeech;
   };
 
   const handleRecordingComplete = async (audioBlob: Blob, durationMs: number) => {

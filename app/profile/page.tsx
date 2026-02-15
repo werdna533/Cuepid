@@ -258,8 +258,8 @@ export default function ProfilePage() {
         {(user.strengths.length > 0 || user.weaknesses.length > 0) && (
           <div className="grid grid-cols-2 gap-3 mb-5 slide-up-element">
             <div className="bg-white rounded-xl shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-emerald-600 mb-2">
-                {"\u{2B50}"} STRENGTHS
+              <h3 className="text-sm font-semibold text-black mb-2">
+                STRENGTHS
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {user.strengths.map((s: string) => (
@@ -273,8 +273,8 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-amber-600 mb-2">
-                {"\u{1F3AF}"} FOCUS AREAS
+              <h3 className="text-sm font-semibold text-black mb-2">
+                FOCUS AREAS
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {user.weaknesses.map((w: string) => (

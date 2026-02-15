@@ -217,7 +217,7 @@ export default function VoiceRecorder({
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Waveform visualization */}
-      <div className="w-full max-w-md h-20 bg-rose-50 rounded-xl overflow-hidden relative">
+      <div className="w-full max-w-md h-20 bg-rose-50 rounded-full overflow-hidden relative">
         {recordingState === "recording" ? (
           <canvas
             ref={canvasRef}
@@ -272,7 +272,7 @@ export default function VoiceRecorder({
       >
         {recordingState === "recording" ? (
           // Stop icon
-          <div className="w-7 h-7 bg-white rounded-sm" />
+          <div className="w-7 h-7 bg-white rounded-full" />
         ) : recordingState === "processing" ? (
           // Loading spinner
           <Image
