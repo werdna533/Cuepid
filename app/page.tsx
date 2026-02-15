@@ -41,6 +41,18 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
+  useEffect(() => {
+    // Trigger slide-up animations after component mounts
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.slide-up-element');
+      elements.forEach((el, index) => {
+        el.classList.add(`animate-slide-up-${Math.min(index + 1, 3)}`);
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const startConversation = (scenarioId: string) => {
     const difficulty = globalDifficulty;
     const mode = globalMode;
@@ -121,7 +133,7 @@ export default function Home() {
         </div>
 
         {/* Global Mode & Difficulty Toggle */}
-        <div className="mb-8 bg-white rounded-2xl shadow-md p-6 flex gap-8 items-center justify-between">
+        <div className="mb-8 bg-white rounded-2xl shadow-md p-6 flex gap-8 items-center justify-between slide-up-element">
           {/* Mode Toggle */}
           <div className="flex gap-3 items-center flex-1 justify-center">
             <span className="text-sm font-bold text-gray-700 whitespace-nowrap">Mode:</span>
@@ -208,14 +220,15 @@ export default function Home() {
 
         {/* Scenario Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Object.values(scenarios).map((scenario) => {
+          {Object.values(scenarios).map((scenario, index) => {
             const locked = isScenarioLocked(scenario.id);
             return (
               <div
                 key={scenario.id}
-                className={`bg-white rounded-2xl shadow-md transition-shadow p-5 flex flex-col h-full ${
+                className={`bg-white rounded-2xl shadow-md transition-shadow p-5 flex flex-col h-full slide-up-element ${
                   locked ? "opacity-60" : "hover:shadow-lg"
                 }`}
+                style={{ animationDelay: `${0.3 + index * 0.1}s` }}
               >
                 <div className="flex items-start gap-3 mb-1">
                   {scenario.id === "planning_a_date" ? (
