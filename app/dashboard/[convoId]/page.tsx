@@ -71,6 +71,18 @@ export default function DashboardPage() {
     loadAndAnalyze();
   }, [convoId]);
 
+  useEffect(() => {
+    // Animate PNG backgrounds into position
+    const timer = setTimeout(() => {
+      const backgroundElement = document.querySelector('.dotted-background');
+      if (backgroundElement) {
+        backgroundElement.classList.add('animate-in');
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen dotted-background flex items-center justify-center">

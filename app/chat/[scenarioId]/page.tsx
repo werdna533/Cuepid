@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { scenarios } from "@/lib/scenarios";
 
 interface Message {
@@ -178,8 +179,51 @@ export default function ChatPage() {
             {"\u2190"}
           </button>
           <div>
-            <h1 className="text-base font-semibold text-gray-800">
-              {scenario.icon} {scenario.title.toUpperCase()}
+            <h1 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+              {scenario.id === "planning_a_date" ? (
+                <Image
+                  src="/scenarios/planning_a_date.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "asking_someone_out" || scenario.id === "making_new_friends" ? (
+                <Image
+                  src={`/scenarios/${scenario.id}.png`}
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "resolving_misunderstanding" ? (
+                <Image
+                  src="/scenarios/resolving_a_misunderstanding.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "difficult_conversation" ? (
+                <Image
+                  src="/scenarios/setting_boundaries.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : scenario.id === "practice_weaknesses" ? (
+                <Image
+                  src="/scenarios/practice_your_weaknesses.png"
+                  alt={scenario.title}
+                  width={20}
+                  height={20}
+                  className="rounded"
+                />
+              ) : (
+                <span>{scenario.icon}</span>
+              )}
+              {scenario.title.toUpperCase()}
             </h1>
             <span className="text-xs text-rose-400 capitalize">
               {difficulty} mode

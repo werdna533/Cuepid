@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   RadarChart,
   PolarGrid,
@@ -65,6 +66,18 @@ export default function ProfilePage() {
         setLoading(false);
       });
   }, [router]);
+
+  useEffect(() => {
+    // Trigger slide-up animations after component mounts
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.slide-up-element');
+      elements.forEach((el, index) => {
+        el.classList.add(`animate-slide-up-${Math.min(index + 1, 3)}`);
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
@@ -130,7 +143,7 @@ export default function ProfilePage() {
     <div className="min-h-screen dotted-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => router.push("/")}
             className="hover:opacity-80 transition-opacity cursor-pointer"
@@ -148,7 +161,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Section */}
-        <div className="mb-8">
+        <div className="mb-8 slide-up-element">
           <h2 className="text-3xl font-bold text-gray-800">YOUR PROFILE</h2>
           <p className="text-gray-500 text-sm mt-1">
             Track your conversation skills
@@ -156,7 +169,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Level Card */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-5 slide-up-element">
           <div className="flex items-center justify-between mb-2">
             <span className="text-lg font-semibold text-gray-800">
               Level {user.level}
@@ -178,7 +191,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-3 gap-3 mb-5 slide-up-element">
           <div className="bg-white rounded-xl shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-rose-500">
               {user.conversationCount}
@@ -199,7 +212,7 @@ export default function ProfilePage() {
 
         {/* Skills Radar */}
         {radarData && (
-          <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-5 slide-up-element">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               AVERAGE PERFORMANCE
             </h2>
@@ -237,7 +250,7 @@ export default function ProfilePage() {
 
         {/* Strengths & Weaknesses */}
         {(user.strengths.length > 0 || user.weaknesses.length > 0) && (
-          <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="grid grid-cols-2 gap-3 mb-5 slide-up-element">
             <div className="bg-white rounded-xl shadow-sm p-4">
               <h3 className="text-sm font-semibold text-emerald-600 mb-2">
                 {"\u{2B50}"} STRENGTHS
@@ -272,7 +285,7 @@ export default function ProfilePage() {
         )}
 
         {/* Conversation History */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-6 slide-up-element">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             RECENT CONVERSATIONS
           </h2>
@@ -291,9 +304,51 @@ export default function ProfilePage() {
                     className="flex items-center justify-between p-3 rounded-xl hover:bg-rose-50 cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">
-                        {scenario?.icon || "\u{1F4AC}"}
-                      </span>
+                      {scenario?.id === "planning_a_date" ? (
+                        <Image
+                          src="/scenarios/planning_a_date.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "asking_someone_out" || scenario?.id === "making_new_friends" ? (
+                        <Image
+                          src={`/scenarios/${scenario.id}.png`}
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "resolving_misunderstanding" ? (
+                        <Image
+                          src="/scenarios/resolving_a_misunderstanding.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "difficult_conversation" ? (
+                        <Image
+                          src="/scenarios/setting_boundaries.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "practice_weaknesses" ? (
+                        <Image
+                          src="/scenarios/practice_your_weaknesses.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : (
+                        <span className="text-xl">
+                          {scenario?.icon || "\u{1F4AC}"}
+                        </span>
+                      )}
                       <div>
                         <div className="text-sm font-medium text-gray-800">
                           {scenario?.title || convo.scenario}
@@ -320,7 +375,7 @@ export default function ProfilePage() {
 
         <button
           onClick={() => router.push("/")}
-          className="w-full bg-rose-500 text-white py-3 rounded-xl font-medium hover:bg-rose-600 transition-colors"
+          className="w-full bg-rose-500 text-white py-3 rounded-xl font-medium hover:bg-rose-600 transition-colors slide-up-element"
         >
           Start New Conversation
         </button>
