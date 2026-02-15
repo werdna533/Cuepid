@@ -81,7 +81,7 @@ export const scenarios: Record<string, Scenario> = {
     id: "difficult_conversation",
     title: "Setting Boundaries",
     description:
-      "Having a tough but necessary conversation about personal boundaries.",
+      "Having a tough but necessary talk about personal boundaries.",
     icon: "\u{1F6E1}\u{FE0F}",
     category: "conflict",
     starterMessage:
