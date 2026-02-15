@@ -120,38 +120,38 @@ export default function Home() {
         </div>
 
         {/* Global Mode & Difficulty Toggle */}
-        <div className="mb-8 bg-white rounded-2xl shadow-md p-5 flex flex-wrap gap-6 items-center">
+        <div className="mb-8 bg-white rounded-2xl shadow-md p-6 flex gap-8 items-center justify-between">
           {/* Mode Toggle */}
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-gray-700 min-w-fit">Mode:</span>
-            <div className="flex gap-2">
+          <div className="flex gap-3 items-center flex-1 justify-center">
+            <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Mode:</span>
+            <div className="flex gap-2 w-full">
               <button
                 onClick={() => setGlobalMode("text")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   globalMode === "text"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                💬 Text
+                Text
               </button>
               <button
                 onClick={() => setGlobalMode("voice")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   globalMode === "voice"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                🎤 Voice
+                Voice
               </button>
             </div>
           </div>
 
           {/* Difficulty Toggle */}
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-gray-700 min-w-fit">Difficulty:</span>
-            <div className="flex gap-2">
+          <div className="flex gap-3 items-center flex-1 justify-center">
+            <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Difficulty:</span>
+            <div className="flex gap-2 w-full">
               {(["easy", "medium", "hard"] as const).map((diff) => {
                 const userLevel = user?.level ?? 1;
                 const locked =
@@ -162,7 +162,7 @@ export default function Home() {
                     key={diff}
                     onClick={() => !locked && setGlobalDifficulty(diff)}
                     disabled={locked}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       globalDifficulty === diff
                         ? "bg-rose-500 text-white shadow-lg scale-105"
                         : locked
@@ -170,7 +170,7 @@ export default function Home() {
                           : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                     }`}
                   >
-                    {locked ? "🔒" : diff.charAt(0).toUpperCase() + diff.slice(1)}
+                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
                   </button>
                 );
               })}
@@ -178,28 +178,28 @@ export default function Home() {
           </div>
 
           {/* Partner Gender Toggle */}
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-gray-700 min-w-fit">Partner:</span>
-            <div className="flex gap-2">
+          <div className="flex gap-3 items-center flex-1 justify-center">
+            <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Partner:</span>
+            <div className="flex gap-2 w-full">
               <button
                 onClick={() => setPartnerGender("female")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   partnerGender === "female"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                👩 Female
+                Female
               </button>
               <button
                 onClick={() => setPartnerGender("male")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   partnerGender === "male"
                     ? "bg-rose-500 text-white shadow-lg scale-105"
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                👨 Male
+                Male
               </button>
             </div>
           </div>
@@ -240,14 +240,14 @@ export default function Home() {
                     className="w-full bg-gray-300 text-gray-500 py-2.5 rounded-xl font-medium cursor-not-allowed flex items-center justify-center gap-2"
                     title="Complete some conversations first to identify your weaknesses"
                   >
-                    🔒 Locked
+                    Locked
                   </button>
                 ) : (
                   <button
                     onClick={() => startConversation(scenario.id)}
                     className="w-full bg-rose-500 text-white py-2.5 rounded-xl font-medium hover:bg-rose-600 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
                   >
-                    {globalMode === "voice" ? "🎤 Start Voice Chat" : "💬 Start Chat"}
+                    {globalMode === "voice" ? "Start Voice Chat" : "Start Chat"}
                   </button>
                 )}
               </div>
