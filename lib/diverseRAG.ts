@@ -1,5 +1,5 @@
-import { searchBookContent } from '../lib/vectorstore';
-import type { SearchResult, BookChunkItem } from '../lib/types/vector';
+import { searchBookContent } from './vectorstore';
+import type { SearchResult, BookChunkItem } from './types/vector';
 
 /**
  * Retrieve knowledge from multiple books with diversity

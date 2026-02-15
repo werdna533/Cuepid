@@ -40,22 +40,34 @@ export async function POST(req: NextRequest) {
     const genderIdentity = gender === "male" ? "You are male." : "You are female.";
     systemPrompt = systemPrompt + `\n\n${genderIdentity}`;
 
-    // RAG: Enhance system prompt with book knowledge
+    // RAG: Enhance system prompt with book knowledge (with fallback)
     const lastMessage = messages[messages.length - 1].content;
-    const { enhancedPrompt, sources } = await queryWithBookKnowledge(
-      lastMessage,
-      systemPrompt,
-      3 // Retrieve top 3 relevant chunks
-    );
-    systemPrompt = enhancedPrompt;
+    let ragUsed = false;
+    let ragInfo = null;
+    let sources: any[] = [];
 
-    // Track if RAG was used
-    const ragUsed = sources.length > 0;
-    const ragInfo = ragUsed ? {
-      sourceCount: sources.length,
-      bookTitle: sources[0]?.item.bookTitle || 'Intimate Relationships',
-      topScore: sources[0]?.score || 0
-    } : null;
+    try {
+      const ragResult = await queryWithBookKnowledge(
+        lastMessage,
+        systemPrompt,
+        3 // Retrieve top 3 relevant chunks
+      );
+      systemPrompt = ragResult.enhancedPrompt;
+      sources = ragResult.sources;
+      
+      // Track if RAG was used
+      ragUsed = sources.length > 0;
+      ragInfo = ragUsed ? {
+        sourceCount: sources.length,
+        bookTitle: sources[0]?.item.bookTitle || 'Intimate Relationships',
+        topScore: sources[0]?.score || 0
+      } : null;
+    } catch (error) {
+      console.warn("RAG enhancement failed, continuing without it:", error);
+      // Continue with original system prompt if RAG fails
+      ragUsed = false;
+      ragInfo = null;
+    }
 
     // Build Gemini-compatible history (must start with "user", alternating roles)
     const allButLast = messages.slice(0, -1);

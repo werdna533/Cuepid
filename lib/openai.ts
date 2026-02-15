@@ -2,15 +2,13 @@ import OpenAI from 'openai';
 
 let openaiClient: OpenAI | null = null;
 
-export function getOpenAIClient(): OpenAI {
+export function getOpenAIClient(): OpenAI | null {
     if (openaiClient) return openaiClient;
 
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-        throw new Error(
-            "Please define OPENAI_API_KEY in .env.local\n" +
-            "Get your API key from: https://platform.openai.com/api-keys"
-        );
+    if (!apiKey || apiKey === 'your_openai_api_key_here') {
+        console.warn("OpenAI API key not configured - RAG features will be disabled");
+        return null;
     }
 
     openaiClient = new OpenAI({ apiKey });
@@ -28,6 +26,10 @@ export async function generateEmbedding(
     model: string = 'text-embedding-3-small'
 ): Promise<number[]> {
     const client = getOpenAIClient();
+    
+    if (!client) {
+        throw new Error("OpenAI client not available - check API key configuration");
+    }
 
     const response = await client.embeddings.create({
         model,
