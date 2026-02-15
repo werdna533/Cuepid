@@ -123,7 +123,7 @@ export default function ChatPage() {
   }, [input, isStreaming, messages, scenarioId, difficulty]);
 
   const endConversation = async () => {
-    if (messages.length < 3 || isSaving) return;
+    if (messages.length < 3 || isSaving || isStreaming) return;
 
     setIsSaving(true);
     try {
@@ -184,7 +184,7 @@ export default function ChatPage() {
         </div>
         <button
           onClick={endConversation}
-          disabled={messages.length < 3 || isSaving}
+          disabled={messages.length < 3 || isSaving || isStreaming}
           className="px-4 py-1.5 bg-rose-500 text-white rounded-lg text-sm font-medium hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? "Saving..." : "End & Analyze"}

@@ -6,7 +6,7 @@ export interface VectorItem {
     userId: string;
     summary: string;
     scenario?: string;
-    difficulty?: number;
+    difficulty?: string;
     timestamp: string;
 }
 
@@ -27,7 +27,7 @@ export interface BookChunkItem {
 export interface VectorMetadata {
     id: string;
     score: number;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 /**

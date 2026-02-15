@@ -22,6 +22,8 @@ interface Analytics {
   avgResponseLength: number;
   avgResponseTimeMs: number;
   suggestions: string[];
+  ragInsights: string[];
+  referenceSources: string[];
   xpEarned: number;
   summary: string;
 }
@@ -244,6 +246,43 @@ export default function DashboardPage() {
             ))}
           </ul>
         </div>
+
+        {/* RAG Insights */}
+        {analytics.ragInsights?.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              {"\u{1F9E0}"} RAG-BASED INSIGHTS
+            </h2>
+            <ul className="space-y-3">
+              {analytics.ragInsights.map((insight, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="bg-sky-100 text-sky-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">
+                    {i + 1}
+                  </span>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {insight}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Sources */}
+        {analytics.referenceSources?.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              {"\u{1F4DA}"} REFERENCES USED
+            </h2>
+            <ul className="space-y-2">
+              {analytics.referenceSources.map((source, i) => (
+                <li key={i} className="text-sm text-gray-600">
+                  {i + 1}. {source}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-3">

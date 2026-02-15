@@ -28,6 +28,8 @@ export interface IAnalytics {
   avgResponseLength: number;
   avgResponseTimeMs: number;
   suggestions: string[];
+  ragInsights: string[];
+  referenceSources: string[];
   xpEarned: number;
   summary: string;
 }
@@ -83,6 +85,8 @@ const ConversationSchema = new Schema<IConversation>(
         avgResponseLength: Number,
         avgResponseTimeMs: Number,
         suggestions: [String],
+        ragInsights: [String],
+        referenceSources: [String],
         xpEarned: Number,
         summary: String,
       },
