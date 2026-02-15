@@ -19,13 +19,37 @@ export function formatBookContext(results: SearchResult<BookChunkItem>[]): strin
         return '';
     }
 
-    // Filter out reference pages and index content
+    // Filter out reference pages, citations, and low-quality content
     const validResults = results.filter(result => {
         const content = result.item.content.toLowerCase();
-        // Skip if it looks like references or index
-        return !content.includes('references') &&
-            !content.match(/^\s*[A-Z][a-z]+,\s+[A-Z]\.\s+[A-Z]\./m) && // Author citations
-            !content.match(/\d{3,}/); // Page numbers in references
+        const originalContent = result.item.content;
+
+        // Skip if it looks like references or bibliography
+        if (content.includes('references') || content.includes('bibliography')) return false;
+
+        // Skip author citations format (e.g., "Smith, J. A.")
+        if (content.match(/^\s*[A-Z][a-z]+,\s+[A-Z]\.\s+[A-Z]\./m)) return false;
+
+        // Skip if too many page numbers (likely index or references)
+        const pageNumbers = content.match(/\d{3,}/g);
+        if (pageNumbers && pageNumbers.length > 3) return false;
+
+        // Skip copyright and legal notices
+        if (content.includes('copyright') || content.includes('©')) return false;
+
+        // Skip if content is too short (likely a fragment)
+        if (originalContent.length < 200) return false;
+
+        // Skip if it mentions specific citation patterns
+        if (content.includes('colleagues created') || content.includes('simulated prison')) return false;
+        if (content.includes('points to the second conclusion')) return false;
+
+        // Skip if it's mostly names and dates (reference style)
+        const namePattern = /[A-Z][a-z]+,\s+[A-Z]\./g;
+        const nameMatches = content.match(namePattern);
+        if (nameMatches && nameMatches.length > 3) return false;
+
+        return true;
     });
 
     if (validResults.length === 0) {

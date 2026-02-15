@@ -10,6 +10,9 @@ import {
   searchConversations,
   storeConversationVector,
 } from "@/lib/vectorstore";
+import { retrieveDiverseBookKnowledge } from "@/lib/diverseRAG";
+
+type SuggestionItem = string | { text: string; source?: string };
 
 type AnalysisOutput = {
   tone: string;
@@ -18,16 +21,38 @@ type AnalysisOutput = {
   empathy: number;
   clarity: number;
   confidence: number;
-  suggestions: string[];
+  suggestions: SuggestionItem[];
   ragInsights: string[];
   summary: string;
 };
 
-function buildFallbackAnalysis(transcript: string): AnalysisOutput {
+function buildFallbackAnalysis(
+  transcript: string,
+  knowledgeChunks: Awaited<ReturnType<typeof retrieveDiverseBookKnowledge>> = []
+): AnalysisOutput {
   const userTurns = transcript
     .split("\n")
     .filter((line) => line.startsWith("User:")).length;
   const engagement = Math.min(100, 35 + userTurns * 10);
+
+  // Generate suggestions with RAG sources if available
+  const baseSuggestions = [
+    "Ask at least one follow-up question that deepens the topic.",
+    "Mirror one specific detail from your partner to show active listening.",
+    "End key messages with a clear next step or invitation.",
+  ];
+
+  const suggestions: SuggestionItem[] = baseSuggestions.map((text, i) => {
+    if (knowledgeChunks.length > 0) {
+      const chunkIndex = i % knowledgeChunks.length;
+      const chunk = knowledgeChunks[chunkIndex];
+      const source = `from ${chunk.item.bookTitle}${chunk.item.chapterTitle ? ` - ${chunk.item.chapterTitle}` : ""
+        }${chunk.item.pageNumber ? ` Page ${chunk.item.pageNumber}` : ""}`;
+      return { text, source };
+    }
+    return text;
+  });
+
   return {
     tone: "natural",
     engagement,
@@ -35,11 +60,7 @@ function buildFallbackAnalysis(transcript: string): AnalysisOutput {
     empathy: 55,
     clarity: 60,
     confidence: Math.max(40, engagement - 10),
-    suggestions: [
-      "Ask at least one follow-up question that deepens the topic.",
-      "Mirror one specific detail from your partner to show active listening.",
-      "End key messages with a clear next step or invitation.",
-    ],
+    suggestions,
     ragInsights: [],
     summary:
       "Analysis model output was unstable, so this report uses a fallback scoring pass. Try another run after a short wait for a more detailed breakdown.",
@@ -79,6 +100,28 @@ function toStringArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
+function toSuggestionArray(value: unknown): SuggestionItem[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (typeof item === "object" && item !== null) {
+        const obj = item as Record<string, unknown>;
+        if (typeof obj.text === "string") {
+          return {
+            text: obj.text.trim(),
+            source: typeof obj.source === "string" ? obj.source.trim() : undefined,
+          };
+        }
+      }
+      return "";
+    })
+    .filter((item) => {
+      if (typeof item === "string") return item !== "";
+      return item.text !== "";
+    });
+}
+
 function normalizeAnalysis(raw: Record<string, unknown>): AnalysisOutput {
   return {
     tone:
@@ -90,7 +133,7 @@ function normalizeAnalysis(raw: Record<string, unknown>): AnalysisOutput {
     empathy: clampScore(raw.empathy),
     clarity: clampScore(raw.clarity),
     confidence: clampScore(raw.confidence),
-    suggestions: toStringArray(raw.suggestions).slice(0, 5),
+    suggestions: toSuggestionArray(raw.suggestions).slice(0, 5),
     ragInsights: toStringArray(raw.ragInsights).slice(0, 4),
     summary:
       typeof raw.summary === "string" && raw.summary.trim()
@@ -149,7 +192,15 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      knowledgeChunks = await searchBookContent(queryForRetrieval, 3);
+      const rawChunks = await retrieveDiverseBookKnowledge(queryForRetrieval, 15);
+      // Only keep high-quality matches (>50% similarity)
+      knowledgeChunks = rawChunks.filter(chunk => chunk.score > 0.5);
+      // If we don't have enough high-quality results, lower threshold slightly
+      if (knowledgeChunks.length < 5) {
+        knowledgeChunks = rawChunks.filter(chunk => chunk.score > 0.35);
+      }
+      // Limit to top 10
+      knowledgeChunks = knowledgeChunks.slice(0, 10);
     } catch (error) {
       console.warn("Book vector retrieval skipped:", error);
     }
@@ -174,20 +225,27 @@ export async function POST(req: NextRequest) {
           .join("\n")
         : "No book knowledge retrieved.";
 
+    // Combine and sort all references by similarity score (highest first)
     const rawReferenceSources = [
       ...similarConversations.map(
-        (result) =>
-          `Similar conversation (${(result.score * 100).toFixed(1)}%): ${result.item.scenario || "unknown"}`
+        (result) => ({
+          text: `Similar conversation (${(result.score * 100).toFixed(1)}%): ${result.item.scenario || "unknown"}`,
+          score: result.score
+        })
       ),
       ...knowledgeChunks.map(
-        (result) =>
-          `Book (${(result.score * 100).toFixed(1)}%): ${result.item.bookTitle}${result.item.chapterTitle ? ` - ${result.item.chapterTitle}` : ""}`
+        (result) => ({
+          text: `Book (${(result.score * 100).toFixed(1)}%): ${result.item.bookTitle}${result.item.chapterTitle ? ` - ${result.item.chapterTitle}` : ""}${result.item.pageNumber ? ` Page ${result.item.pageNumber}` : ""}`,
+          score: result.score
+        })
       ),
     ];
-    const referenceSources = Array.from(new Set(rawReferenceSources)).slice(
-      0,
-      10
-    );
+
+    // Sort by score descending and remove duplicates
+    const sortedReferences = rawReferenceSources
+      .sort((a, b) => b.score - a.score)
+      .map(r => r.text);
+    const referenceSources = Array.from(new Set(sortedReferences)).slice(0, 10);
 
     const model = getAnalysisModel();
 
@@ -198,11 +256,10 @@ The scenario was: "${conversation.scenario}" (${conversation.difficulty} difficu
 Transcript:
 ${transcript}
 
-
 RAG context - similar past conversations from this user:
 ${similarConversationsText}
 
-RAG context - relationship communication knowledge:
+RAG context - relationship communication knowledge from books:
 ${bookKnowledgeText}
 
 Analyze the USER's (NOT the Partner's) communication skills, using the second person (you, your). Return a JSON object with exactly this structure:
@@ -213,17 +270,35 @@ Analyze the USER's (NOT the Partner's) communication skills, using the second pe
   "empathy": <number 0-100, did they show understanding of the other person's feelings and perspective>,
   "clarity": <number 0-100, were their messages clear, well-structured, and easy to understand>,
   "confidence": <number 0-100, did they seem self-assured without being arrogant>,
-  "suggestions": ["3-5 specific, actionable suggestions for improvement based on their weakest areas"],
+  "suggestions": [
+    "Generate 3-5 actionable tips, ALL must be based on the book knowledge provided above",
+    "EVERY suggestion MUST use this format: {\"text\": \"actionable tip\", \"source\": \"from [Book Title] - [Chapter Title]\"}",
+    "Use concepts, theories, and advice DIRECTLY from the book excerpts above",
+    "Try to use different books for different suggestions to show diversity",
+    "Make each tip specific and actionable for this user's situation"
+  ],
   "ragInsights": ["2-4 concise insights explicitly grounded in the provided RAG context"],
   "summary": "A brief 2-3 sentence summary of how the conversation went, what the user did well, and what they could improve"
 }
 
-Requirements:
-- Ground feedback in transcript evidence first.
-- Use RAG context only when relevant; do not hallucinate facts not in transcript or provided context.
-- If no RAG context is useful, keep ragInsights empty.
-- Be constructive but honest. Give realistic scores, not all high and not all low.
-- Consider the difficulty level when evaluating.`;
+🔴 CRITICAL REQUIREMENTS FOR SUGGESTIONS:
+- ALL suggestions MUST come from the book knowledge provided above
+- EVERY suggestion MUST include a source attribute showing which book and chapter it came from
+- Use format: {\"text\": \"your suggestion based on book concept\", \"source\": \"from [Book Title] - [Chapter Title]\"}
+- Try to pull from DIFFERENT books to show knowledge diversity (you have ${knowledgeChunks.length} excerpts from multiple books)
+- Reference specific theories, models, or concepts mentioned in the book excerpts
+- If a book excerpt mentions a specific technique or principle, use it in your suggestion
+
+Example suggestions format (FOLLOW THIS EXACTLY):
+[
+  {\"text\": \"Apply the 'investment model' theory - demonstrate commitment by initiating plans for future shared activities\", \"source\": \"from Intimate Relationships - Chapter 6: Commitment\"},
+  {\"text\": \"Use secure attachment communication - express needs directly while showing trust in your partner's responsiveness\", \"source\": \"from Attachment and Loss - Chapter 3: Attachment Styles\"},
+  {\"text\": \"Practice the reciprocity principle - match your partner's self-disclosure depth to build mutual trust\", \"source\": \"from The Social Animal - Chapter 8: Interpersonal Attraction\"}
+]
+
+Ground feedback in transcript evidence, but derive improvement suggestions from the book knowledge above.
+Be constructive but honest. Give realistic scores, not all high and not all low.
+Consider the difficulty level when evaluating.`;
 
     let analysis: AnalysisOutput;
     try {
@@ -231,9 +306,38 @@ Requirements:
       const analysisText = result.response.text();
       const parsed = parseModelJson(analysisText);
       analysis = normalizeAnalysis(parsed);
+
+      // AUTO-FIX: If AI returned plain text suggestions, auto-attach sources from RAG
+      if (analysis.suggestions.length > 0 && knowledgeChunks.length > 0) {
+        const needsSourceFix = analysis.suggestions.some(
+          s => typeof s === "string"
+        );
+
+        if (needsSourceFix) {
+          console.log("Auto-fixing suggestions: adding RAG sources...");
+          const fixedSuggestions: SuggestionItem[] = [];
+
+          for (let i = 0; i < analysis.suggestions.length; i++) {
+            const suggestion = analysis.suggestions[i];
+            const text = typeof suggestion === "string" ? suggestion : suggestion.text;
+
+            // Use different book chunks for different suggestions (round-robin)
+            const chunkIndex = i % knowledgeChunks.length;
+            const chunk = knowledgeChunks[chunkIndex];
+
+            const source = `from ${chunk.item.bookTitle}${chunk.item.chapterTitle ? ` - ${chunk.item.chapterTitle}` : ""
+              }${chunk.item.pageNumber ? ` Page ${chunk.item.pageNumber}` : ""}`;
+
+            fixedSuggestions.push({ text, source });
+          }
+
+          analysis.suggestions = fixedSuggestions;
+          console.log(`✅ Fixed ${fixedSuggestions.length} suggestions with RAG sources`);
+        }
+      }
     } catch (error) {
       console.warn("Model analysis failed, using fallback analysis:", error);
-      analysis = buildFallbackAnalysis(transcript);
+      analysis = buildFallbackAnalysis(transcript, knowledgeChunks);
     }
 
     // Calculate response time and message length stats
@@ -286,7 +390,7 @@ Requirements:
     const userSummaryForVector = [
       `Tone: ${analysis.tone}`,
       `Summary: ${analysis.summary}`,
-      `Top suggestions: ${analysis.suggestions.slice(0, 2).join("; ")}`,
+      `Top suggestions: ${analysis.suggestions.slice(0, 2).map(s => typeof s === "string" ? s : s.text).join("; ")}`,
       `Scores - engagement ${analysis.engagement}, initiative ${analysis.initiative}, empathy ${analysis.empathy}, clarity ${analysis.clarity}, confidence ${analysis.confidence}`,
     ].join("\n");
     try {

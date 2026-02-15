@@ -1,23 +1,11 @@
 import mammoth from 'mammoth';
 import fs from 'fs/promises';
 import path from 'path';
-import { createRequire } from 'module';
 
 export interface BookChunk {
     content: string;
     chapterTitle?: string;
     pageNumber?: number;
-}
-
-/**
- * Extract text from PDF file
- */
-export async function extractTextFromPdf(filePath: string): Promise<string> {
-    const require = createRequire(import.meta.url);
-    const pdfParse = require('pdf-parse');
-    const buffer = await fs.readFile(filePath);
-    const data = await pdfParse(buffer);
-    return data.text;
 }
 
 /**
@@ -119,8 +107,6 @@ export async function processBookFile(
     let text: string;
     if (ext === '.docx') {
         text = await extractTextFromDocx(filePath);
-    } else if (ext === '.pdf') {
-        text = await extractTextFromPdf(filePath);
     } else if (ext === '.txt' || ext === '.md') {
         text = await fs.readFile(filePath, 'utf-8');
     } else {

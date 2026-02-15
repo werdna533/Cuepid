@@ -12,6 +12,8 @@ import {
 } from "recharts";
 import { scenarios } from "@/lib/scenarios";
 
+type SuggestionItem = string | { text: string; source?: string };
+
 interface Analytics {
   tone: string;
   engagement: number;
@@ -21,7 +23,7 @@ interface Analytics {
   confidence: number;
   avgResponseLength: number;
   avgResponseTimeMs: number;
-  suggestions: string[];
+  suggestions: SuggestionItem[];
   ragInsights: string[];
   referenceSources: string[];
   xpEarned: number;
@@ -246,16 +248,30 @@ export default function DashboardPage() {
             {"\u{1F4A1}"} TIPS FOR NEXT TIME
           </h2>
           <ul className="space-y-3">
-            {analytics.suggestions.map((suggestion, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="bg-rose-100 text-rose-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">
-                  {i + 1}
-                </span>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {suggestion}
-                </p>
-              </li>
-            ))}
+            {analytics.suggestions.map((suggestion, i) => {
+              const isObject = typeof suggestion === "object";
+              const text = isObject ? suggestion.text : suggestion;
+              const source = isObject ? suggestion.source : undefined;
+
+              return (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="bg-rose-100 text-rose-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">
+                    {i + 1}
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {text}
+                    </p>
+                    {source && (
+                      <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
+                        <span>📚</span>
+                        <span className="italic">{source}</span>
+                      </p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
