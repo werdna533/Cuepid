@@ -131,6 +131,118 @@ export default function VoiceChatPage() {
     }
   };
 
+  // Helper function to detect non-speech audio patterns
+  const isNonSpeechAudio = (transcript: string): boolean => {
+    const nonSpeechPatterns = [
+      // English patterns
+      /\(.*whoosh.*\)/i,
+      /\(.*background\s+music.*\)/i,
+      /\(.*background\s+noise.*\)/i,
+      /\(.*ambient.*noise.*\)/i,
+      /\(.*silence.*\)/i,
+      /\(.*static.*\)/i,
+      /\(.*wind.*noise.*\)/i,
+      /\(.*breathing.*\)/i,
+      /\(.*rustling.*\)/i,
+      /\(.*clicking.*\)/i,
+      /\(.*tapping.*\)/i,
+      /\(.*keyboard.*\)/i,
+      /\(.*mouse.*click.*\)/i,
+      /\(.*fan.*noise.*\)/i,
+      /\(.*air.*conditioning.*\)/i,
+      /\(.*traffic.*\)/i,
+      /\(.*footsteps.*\)/i,
+      /\(.*door.*\)/i,
+      /\(.*phone.*\)/i,
+      /\(.*notification.*\)/i,
+      /\(.*beep.*\)/i,
+      /\(.*buzz.*\)/i,
+      /\(.*hum.*\)/i,
+      /\(.*sound.*\)/i,
+      /\(.*noise.*\)/i,
+      /\(.*audio.*\)/i,
+      /\(.*music.*\)/i,
+      
+      // Korean patterns (배경 소음 = background noise)
+      /\(.*배경.*소음.*\)/,
+      /\(.*소음.*\)/,
+      /\(.*잡음.*\)/,
+      /\(.*바람.*소리.*\)/,
+      /\(.*음악.*\)/,
+      /\(.*소리.*\)/,
+      
+      // Chinese patterns (背景噪音 = background noise)
+      /\(.*背景.*噪音.*\)/,
+      /\(.*背景.*音乐.*\)/,
+      /\(.*噪音.*\)/,
+      /\(.*杂音.*\)/,
+      /\(.*声音.*\)/,
+      /\(.*音乐.*\)/,
+      /\(.*风声.*\)/,
+      
+      // Japanese patterns
+      /\(.*背景.*ノイズ.*\)/,
+      /\(.*雑音.*\)/,
+      /\(.*音楽.*\)/,
+      /\(.*音.*\)/,
+      
+      // Spanish patterns
+      /\(.*ruido.*de.*fondo.*\)/i,
+      /\(.*ruido.*\)/i,
+      /\(.*sonido.*\)/i,
+      /\(.*música.*\)/i,
+      
+      // French patterns
+      /\(.*bruit.*de.*fond.*\)/i,
+      /\(.*bruit.*\)/i,
+      /\(.*musique.*\)/i,
+      /\(.*son.*\)/i,
+      
+      // German patterns
+      /\(.*hintergrund.*geräusch.*\)/i,
+      /\(.*geräusch.*\)/i,
+      /\(.*musik.*\)/i,
+      
+      // Square bracket variations
+      /\[.*sound.*\]/i,
+      /\[.*noise.*\]/i,
+      /\[.*music.*\]/i,
+      /\[.*소음.*\]/,
+      /\[.*噪音.*\]/,
+      
+      // Generic patterns that work across languages
+      /^\(.*\)$/,  // Anything entirely in parentheses
+      /^\[.*\]$/,  // Anything entirely in square brackets
+      
+      // Very short or repetitive content that's likely not speech
+      /^[a-z]{1,2}\.?$/i,
+      /^(ah+|uh+|mm+|hm+)\.?$/i,
+      /^[^\p{L}\p{N}]*$/u, // Only symbols/punctuation, no letters or numbers
+    ];
+
+    const trimmedTranscript = transcript.trim();
+    
+    // Check if transcript is too short to be meaningful speech
+    if (trimmedTranscript.length < 3) {
+      return true;
+    }
+    
+    // Check if it's only punctuation or symbols
+    if (!/\p{L}/u.test(trimmedTranscript)) {
+      return true;
+    }
+    
+    // Check against known non-speech patterns
+    const isNonSpeech = nonSpeechPatterns.some(pattern => pattern.test(transcript));
+    
+    // Add debug logging to track filtering behavior
+    if (isNonSpeech) {
+      console.log('[Voice Filter] Blocked non-speech audio:', transcript);
+    }
+    
+    return isNonSpeech;
+  };
+
   const handleRecordingComplete = async (audioBlob: Blob, durationMs: number) => {
     setConversationState("processing");
 
@@ -152,6 +264,14 @@ export default function VoiceChatPage() {
 
       if (!transcript || transcript.trim().length === 0) {
         alert("Could not understand audio. Please try again.");
+        setConversationState("idle");
+        return;
+      }
+
+      // Check for non-speech audio patterns
+      if (isNonSpeechAudio(transcript)) {
+        console.log("Non-speech audio detected:", transcript);
+        alert("I detected background noise instead of speech. Please try speaking again.");
         setConversationState("idle");
         return;
       }
@@ -440,43 +560,58 @@ export default function VoiceChatPage() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
+            className={`flex ${msg.role === "user" ? "flex-col items-end" : "flex-row items-start gap-3"}`}
           >
-            {/* Tone indicator for model messages */}
-            {msg.role === "model" && msg.tone && (
-              <span className="text-xs text-gray-400 mb-1 ml-1">
-                {getToneEmoji(msg.tone)} {msg.tone}
-              </span>
-            )}
-
-            <div
-              className={`max-w-[85%] sm:max-w-[75%] ${
-                msg.role === "user"
-                  ? "bg-rose-500 text-white rounded-2xl rounded-br-md"
-                  : "bg-white text-gray-800 shadow-sm border border-rose-100 rounded-2xl rounded-bl-md"
-              } px-4 py-3`}
-            >
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                {msg.content}
-              </p>
-            </div>
-
-            {/* Voice metrics summary for user messages */}
-            {msg.role === "user" && msg.voiceMetrics && (
-              <div className="flex gap-2 mt-1 text-xs text-gray-400">
-                <span>{msg.voiceMetrics.wpm} WPM</span>
-                <span>•</span>
-                <span>Confidence: {msg.voiceMetrics.confidenceScore}%</span>
-                {msg.voiceMetrics.fillerFrequency > 5 && (
-                  <>
-                    <span>•</span>
-                    <span className="text-amber-500">
-                      {msg.voiceMetrics.fillerFrequency}% fillers
-                    </span>
-                  </>
-                )}
+            {/* AI Profile Picture */}
+            {msg.role === "model" && (
+              <div className="flex-shrink-0 self-end mb-1">
+                <Image
+                  src="/scenarios/profile.png"
+                  alt="AI Assistant"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
               </div>
             )}
+            
+            <div className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
+              {/* Tone indicator for model messages */}
+              {msg.role === "model" && msg.tone && (
+                <span className="text-xs text-gray-400 mb-1 ml-1">
+                  {getToneEmoji(msg.tone)} {msg.tone}
+                </span>
+              )}
+
+              <div
+                className={`max-w-[85%] sm:max-w-[75%] ${
+                  msg.role === "user"
+                    ? "bg-rose-500 text-white rounded-2xl rounded-br-md"
+                    : "bg-white text-gray-800 shadow-sm border border-rose-100 rounded-2xl rounded-bl-md"
+                } px-4 py-3`}
+              >
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {msg.content}
+                </p>
+              </div>
+
+              {/* Voice metrics summary for user messages */}
+              {msg.role === "user" && msg.voiceMetrics && (
+                <div className="flex gap-2 mt-1 text-xs text-gray-400">
+                  <span>{msg.voiceMetrics.wpm} WPM</span>
+                  <span>•</span>
+                  <span>Confidence: {msg.voiceMetrics.confidenceScore}%</span>
+                  {msg.voiceMetrics.fillerFrequency > 5 && (
+                    <>
+                      <span>•</span>
+                      <span className="text-amber-500">
+                        {msg.voiceMetrics.fillerFrequency}% fillers
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -505,7 +640,13 @@ export default function VoiceChatPage() {
           )}
           {conversationState === "processing" && (
             <div className="flex items-center justify-center gap-2 text-gray-500">
-              <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+              <Image
+                src="/scenarios/favicon.png"
+                alt="Processing"
+                width={16}
+                height={16}
+                className="animate-spin"
+              />
               <span className="text-sm">
                 {isGeneratingAudio ? "Generating response..." : "Processing..."}
               </span>
@@ -533,7 +674,13 @@ export default function VoiceChatPage() {
         {isGeneratingAudio && !currentAudioUrl && (
           <div className="mb-4 max-w-md mx-auto flex items-center justify-center gap-3 bg-rose-50 rounded-xl px-4 py-3">
             <div className="w-10 h-10 rounded-full bg-rose-200 flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+              <Image
+                src="/scenarios/favicon.png"
+                alt="Generating audio"
+                width={20}
+                height={20}
+                className="animate-spin"
+              />
             </div>
             <span className="text-rose-600 text-sm font-medium">Generating audio...</span>
           </div>
