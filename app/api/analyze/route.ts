@@ -26,6 +26,42 @@ type AnalysisOutput = {
   summary: string;
 };
 
+function formatBookSourceLabel(item: {
+  bookTitle: string;
+  chapterTitle?: string;
+  pageNumber?: number;
+}) {
+  return `${item.bookTitle}${item.chapterTitle ? ` - ${item.chapterTitle}` : ""}${item.pageNumber ? ` Page ${item.pageNumber}` : ""}`;
+}
+
+function dedupeBookChunksBySource(
+  chunks: Awaited<ReturnType<typeof retrieveDiverseBookKnowledge>>
+) {
+  const map = new Map<string, (typeof chunks)[number]>();
+  for (const chunk of chunks) {
+    const key = `${chunk.item.bookTitle}::${chunk.item.chapterTitle || ""}::${chunk.item.pageNumber || ""}`;
+    const existing = map.get(key);
+    if (!existing || chunk.score > existing.score) {
+      map.set(key, chunk);
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => b.score - a.score);
+}
+
+function dedupeSimilarConversationsById(
+  results: Awaited<ReturnType<typeof searchConversations>>
+) {
+  const map = new Map<string, (typeof results)[number]>();
+  for (const result of results) {
+    const key = result.item.conversationId;
+    const existing = map.get(key);
+    if (!existing || result.score > existing.score) {
+      map.set(key, result);
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => b.score - a.score);
+}
+
 function buildFallbackAnalysis(
   transcript: string,
   knowledgeChunks: Awaited<ReturnType<typeof retrieveDiverseBookKnowledge>> = []
@@ -175,18 +211,20 @@ export async function POST(req: NextRequest) {
       .slice(0, 2500)
       .trim();
 
-    let similarConversations: Awaited<ReturnType<typeof searchConversations>> =
-      [];
+    let similarConversations: Awaited<ReturnType<typeof searchConversations>> = [];
     let knowledgeChunks: Awaited<ReturnType<typeof searchBookContent>> = [];
     try {
       similarConversations = await searchConversations(
         queryForRetrieval,
-        3,
+        8,
         conversation.userId
       );
       similarConversations = similarConversations.filter(
         (result) => result.item.conversationId !== String(conversation._id)
       );
+      similarConversations = dedupeSimilarConversationsById(
+        similarConversations
+      ).slice(0, 5);
     } catch (error) {
       console.warn("Conversation vector retrieval skipped:", error);
     }
@@ -199,8 +237,7 @@ export async function POST(req: NextRequest) {
       if (knowledgeChunks.length < 5) {
         knowledgeChunks = rawChunks.filter(chunk => chunk.score > 0.35);
       }
-      // Limit to top 10
-      knowledgeChunks = knowledgeChunks.slice(0, 10);
+      knowledgeChunks = dedupeBookChunksBySource(knowledgeChunks).slice(0, 6);
     } catch (error) {
       console.warn("Book vector retrieval skipped:", error);
     }
@@ -220,32 +257,38 @@ export async function POST(req: NextRequest) {
         ? knowledgeChunks
           .map(
             (result, index) =>
-              `${index + 1}. Similarity ${(result.score * 100).toFixed(1)}%, Source: ${result.item.bookTitle}${result.item.chapterTitle ? ` - ${result.item.chapterTitle}` : ""}, Excerpt: ${result.item.content.slice(0, 350)}`
+              `${index + 1}. Similarity ${(result.score * 100).toFixed(1)}%, Source: ${formatBookSourceLabel(result.item)}, Excerpt: ${result.item.content.slice(0, 350)}`
           )
           .join("\n")
         : "No book knowledge retrieved.";
 
-    // Combine and sort all references by similarity score (highest first)
-    const rawReferenceSources = [
-      ...similarConversations.map(
-        (result) => ({
-          text: `Similar conversation (${(result.score * 100).toFixed(1)}%): ${result.item.scenario || "unknown"}`,
-          score: result.score
-        })
-      ),
-      ...knowledgeChunks.map(
-        (result) => ({
-          text: `Book (${(result.score * 100).toFixed(1)}%): ${result.item.bookTitle}${result.item.chapterTitle ? ` - ${result.item.chapterTitle}` : ""}${result.item.pageNumber ? ` Page ${result.item.pageNumber}` : ""}`,
-          score: result.score
-        })
-      ),
+    const referenceEntries = [
+      ...similarConversations.map((result) => ({
+        key: `conv::${result.item.conversationId}`,
+        text: `Similar conversation (${(result.score * 100).toFixed(1)}%): ${result.item.scenario || "unknown"}`,
+        score: result.score,
+      })),
+      ...knowledgeChunks.map((result) => {
+        const sourceLabel = formatBookSourceLabel(result.item);
+        return {
+          key: `book::${sourceLabel}`,
+          text: `Book (${(result.score * 100).toFixed(1)}%): ${sourceLabel}`,
+          score: result.score,
+        };
+      }),
     ];
 
-    // Sort by score descending and remove duplicates
-    const sortedReferences = rawReferenceSources
+    const bestReferenceByKey = new Map<string, (typeof referenceEntries)[number]>();
+    for (const entry of referenceEntries) {
+      const existing = bestReferenceByKey.get(entry.key);
+      if (!existing || entry.score > existing.score) {
+        bestReferenceByKey.set(entry.key, entry);
+      }
+    }
+    const referenceSources = Array.from(bestReferenceByKey.values())
       .sort((a, b) => b.score - a.score)
-      .map(r => r.text);
-    const referenceSources = Array.from(new Set(sortedReferences)).slice(0, 10);
+      .slice(0, 10)
+      .map((entry) => entry.text);
 
     const model = getAnalysisModel();
 
@@ -325,8 +368,7 @@ Consider the difficulty level when evaluating.`;
             const chunkIndex = i % knowledgeChunks.length;
             const chunk = knowledgeChunks[chunkIndex];
 
-            const source = `from ${chunk.item.bookTitle}${chunk.item.chapterTitle ? ` - ${chunk.item.chapterTitle}` : ""
-              }${chunk.item.pageNumber ? ` Page ${chunk.item.pageNumber}` : ""}`;
+            const source = `from ${formatBookSourceLabel(chunk.item)}`;
 
             fixedSuggestions.push({ text, source });
           }

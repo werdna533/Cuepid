@@ -279,7 +279,7 @@ export default function DashboardPage() {
         {analytics.ragInsights?.length > 0 && (
           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-3">
-              {"\u{1F9E0}"} RAG-BASED INSIGHTS
+              {"\u{1F9E0}"} Research Insight
             </h2>
             <ul className="space-y-3">
               {analytics.ragInsights.map((insight, i) => (
