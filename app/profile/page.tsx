@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   RadarChart,
   PolarGrid,
@@ -130,7 +131,7 @@ export default function ProfilePage() {
     <div className="min-h-screen dotted-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => router.push("/")}
             className="hover:opacity-80 transition-opacity cursor-pointer"
@@ -291,9 +292,51 @@ export default function ProfilePage() {
                     className="flex items-center justify-between p-3 rounded-xl hover:bg-rose-50 cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">
-                        {scenario?.icon || "\u{1F4AC}"}
-                      </span>
+                      {scenario?.id === "planning_a_date" ? (
+                        <Image
+                          src="/scenarios/planning_a_date.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "asking_someone_out" || scenario?.id === "making_new_friends" ? (
+                        <Image
+                          src={`/scenarios/${scenario.id}.png`}
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "resolving_misunderstanding" ? (
+                        <Image
+                          src="/scenarios/resolving_a_misunderstanding.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "difficult_conversation" ? (
+                        <Image
+                          src="/scenarios/setting_boundaries.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : scenario?.id === "practice_weaknesses" ? (
+                        <Image
+                          src="/scenarios/practice_your_weaknesses.png"
+                          alt={scenario.title}
+                          width={24}
+                          height={24}
+                          className="rounded"
+                        />
+                      ) : (
+                        <span className="text-xl">
+                          {scenario?.icon || "\u{1F4AC}"}
+                        </span>
+                      )}
                       <div>
                         <div className="text-sm font-medium text-gray-800">
                           {scenario?.title || convo.scenario}
