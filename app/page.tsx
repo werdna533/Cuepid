@@ -32,6 +32,26 @@ export default function Home() {
       localStorage.setItem("cuepid-user-id", id);
     }
 
+    // Restore settings from sessionStorage (when returning from chat)
+    const savedMode = sessionStorage.getItem("cuepid-conversation-mode") as ConversationMode;
+    const savedDifficulty = sessionStorage.getItem("cuepid-difficulty");
+    const savedGender = sessionStorage.getItem("cuepid-partner-gender") as PartnerGender;
+    
+    if (savedMode && (savedMode === "text" || savedMode === "voice")) {
+      setGlobalMode(savedMode);
+    }
+    if (savedDifficulty && ["easy", "medium", "hard"].includes(savedDifficulty)) {
+      setGlobalDifficulty(savedDifficulty);
+    }
+    if (savedGender && (savedGender === "female" || savedGender === "male")) {
+      setPartnerGender(savedGender);
+    }
+
+    // Clear settings after restoring to ensure they only persist during chat sessions
+    sessionStorage.removeItem("cuepid-conversation-mode");
+    sessionStorage.removeItem("cuepid-difficulty");
+    sessionStorage.removeItem("cuepid-partner-gender");
+
     fetch("/api/user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -55,6 +75,10 @@ export default function Home() {
   }, []);
 
   const startConversation = (scenarioId: string) => {
+    // Save current settings to sessionStorage before starting chat
+    sessionStorage.setItem("cuepid-conversation-mode", globalMode);
+    sessionStorage.setItem("cuepid-difficulty", globalDifficulty);
+    sessionStorage.setItem("cuepid-partner-gender", partnerGender);
     const difficulty = globalDifficulty;
     const mode = globalMode;
     

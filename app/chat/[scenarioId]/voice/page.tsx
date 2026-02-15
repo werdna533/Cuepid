@@ -440,43 +440,58 @@ export default function VoiceChatPage() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
+            className={`flex ${msg.role === "user" ? "flex-col items-end" : "flex-row items-start gap-3"}`}
           >
-            {/* Tone indicator for model messages */}
-            {msg.role === "model" && msg.tone && (
-              <span className="text-xs text-gray-400 mb-1 ml-1">
-                {getToneEmoji(msg.tone)} {msg.tone}
-              </span>
-            )}
-
-            <div
-              className={`max-w-[85%] sm:max-w-[75%] ${
-                msg.role === "user"
-                  ? "bg-rose-500 text-white rounded-2xl rounded-br-md"
-                  : "bg-white text-gray-800 shadow-sm border border-rose-100 rounded-2xl rounded-bl-md"
-              } px-4 py-3`}
-            >
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                {msg.content}
-              </p>
-            </div>
-
-            {/* Voice metrics summary for user messages */}
-            {msg.role === "user" && msg.voiceMetrics && (
-              <div className="flex gap-2 mt-1 text-xs text-gray-400">
-                <span>{msg.voiceMetrics.wpm} WPM</span>
-                <span>•</span>
-                <span>Confidence: {msg.voiceMetrics.confidenceScore}%</span>
-                {msg.voiceMetrics.fillerFrequency > 5 && (
-                  <>
-                    <span>•</span>
-                    <span className="text-amber-500">
-                      {msg.voiceMetrics.fillerFrequency}% fillers
-                    </span>
-                  </>
-                )}
+            {/* AI Profile Picture */}
+            {msg.role === "model" && (
+              <div className="flex-shrink-0 self-end mb-1">
+                <Image
+                  src="/scenarios/profile.png"
+                  alt="AI Assistant"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
               </div>
             )}
+            
+            <div className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
+              {/* Tone indicator for model messages */}
+              {msg.role === "model" && msg.tone && (
+                <span className="text-xs text-gray-400 mb-1 ml-1">
+                  {getToneEmoji(msg.tone)} {msg.tone}
+                </span>
+              )}
+
+              <div
+                className={`max-w-[85%] sm:max-w-[75%] ${
+                  msg.role === "user"
+                    ? "bg-rose-500 text-white rounded-2xl rounded-br-md"
+                    : "bg-white text-gray-800 shadow-sm border border-rose-100 rounded-2xl rounded-bl-md"
+                } px-4 py-3`}
+              >
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {msg.content}
+                </p>
+              </div>
+
+              {/* Voice metrics summary for user messages */}
+              {msg.role === "user" && msg.voiceMetrics && (
+                <div className="flex gap-2 mt-1 text-xs text-gray-400">
+                  <span>{msg.voiceMetrics.wpm} WPM</span>
+                  <span>•</span>
+                  <span>Confidence: {msg.voiceMetrics.confidenceScore}%</span>
+                  {msg.voiceMetrics.fillerFrequency > 5 && (
+                    <>
+                      <span>•</span>
+                      <span className="text-amber-500">
+                        {msg.voiceMetrics.fillerFrequency}% fillers
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
