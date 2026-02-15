@@ -671,23 +671,6 @@ export default function VoiceChatPage() {
             />
           </div>
         )}
-<<<<<<< HEAD
-=======
-        {isGeneratingAudio && !currentAudioUrl && (
-          <div className="mb-4 max-w-md mx-auto flex items-center justify-center gap-3 bg-rose-50 rounded-xl px-4 py-3">
-            <div className="w-10 h-10 rounded-full bg-rose-200 flex items-center justify-center">
-              <Image
-                src="/scenarios/favicon.png"
-                alt="Generating audio"
-                width={20}
-                height={20}
-                className="animate-spin"
-              />
-            </div>
-            <span className="text-rose-600 text-sm font-medium">Generating audio...</span>
-          </div>
-        )}
->>>>>>> e66c1465a889ed986b5a1be00c67beaecf84d68b
 
         {/* Voice recorder */}
         {conversationState !== "speaking" && (
