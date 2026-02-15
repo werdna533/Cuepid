@@ -113,7 +113,7 @@ export default function Home() {
             )}
             <button
               onClick={() => router.push("/profile")}
-              className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-gray-600 hover:text-rose-500 transition-colors"
+              className="bg-white/80 hover:bg-white rounded-full px-4 py-2 shadow-sm text-sm text-black hover:text-rose-500 transition-colors cursor-pointer"
             >
               Profile
             </button>
