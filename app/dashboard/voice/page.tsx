@@ -290,14 +290,14 @@ function VoiceDashboardContent() {
         {trendData.length > 1 && (
           <div className="bg-white rounded-2xl shadow-md p-6 mb-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Performance Trend</h2>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
+                <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" />
                   <XAxis dataKey="response" tick={{ fontSize: 12 }} label={{ value: "Response #", position: "bottom", fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
                   <Tooltip />
-                  <Legend />
+                  <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="line" />
                   <Line type="monotone" dataKey="confidence" stroke="#f43f5e" strokeWidth={2} dot={{ r: 4 }} />
                   <Line type="monotone" dataKey="engagement" stroke="#ec4899" strokeWidth={2} dot={{ r: 4 }} />
                 </LineChart>
