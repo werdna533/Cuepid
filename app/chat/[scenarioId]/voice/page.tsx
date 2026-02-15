@@ -545,14 +545,6 @@ export default function VoiceChatPage() {
             />
           </div>
         )}
-        {isGeneratingAudio && !currentAudioUrl && (
-          <div className="mb-4 max-w-md mx-auto flex items-center justify-center gap-3 bg-rose-50 rounded-xl px-4 py-3">
-            <div className="w-10 h-10 rounded-full bg-rose-200 flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-            <span className="text-rose-600 text-sm font-medium">Generating audio...</span>
-          </div>
-        )}
 
         {/* Voice recorder */}
         {conversationState !== "speaking" && (
